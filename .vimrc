@@ -1,505 +1,284 @@
-set nocompatible
+set nocompatible               " be iMproved
+filetype off                   " required!
 
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !mkdir -p ~/.vim/autoload
-    silent !curl -fLo ~/.vim/autoload/plug.vim
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall
-endif
+set rtp+=~/.vim/bundle/Vundle.vim/
+call vundle#begin()
 
-call plug#begin('~/.vim/bundle')
+" let Vundle manage Vundle
+" required!
+Plugin 'gmarik/Vundle.vim'
+Plugin 'seletskiy/vim-over80'
+Plugin 'seletskiy/vim-nunu'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'Shougo/unite.vim'
+Plugin 'yuku-t/unite-git'
+Plugin 'Shougo/neomru.vim'
+Plugin 'bling/vim-airline'
+Plugin 'scrooloose/nerdtree'
+Plugin 'tpope/vim-fugitive'
+Plugin 'Gundo'
+Plugin 'ervandew/supertab'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'fatih/vim-go'
+"Plugin 'seletskiy/vim-pythonx'
+Plugin 'cespare/vim-toml'
+Plugin 'majutsushi/tagbar'
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
+Plugin 'osyo-manga/vim-over' " replace with preview
+Plugin 'ciaranm/detectindent'
 
-let mapleader="\<space>"
+call vundle#end()
 
-Plug 'nevar/revim', {'for': 'erlang'}
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set update time 500ms
+set updatetime=500
+" Sets how many lines of history VIM has to remember
+set history=700
 
-Plug 'tpope/vim-fugitive'
-    map <C-G><C-G> :Gstatus<CR>
-
-Plug 'Gundo', {'on': 'GundoToggle'}
-
-Plug 'dahu/SearchParty'
-    nmap <silent> <Leader><Leader> :let @/="" \| call feedkeys("\<Plug>SearchPartyHighlightClear")<CR>
-
-Plug 'edsono/vim-matchit', {'for': 'html'}
-
-Plug 'scrooloose/nerdcommenter'
-
-Plug 'kien/rainbow_parentheses.vim'
-
-Plug 'wojtekmach/vim-rename'
-
-Plug 'repeat.vim'
-
-Plug 'junegunn/seoul256.vim'
-
-Plug 'surround.vim'
-
-Plug 'git@github.com:seletskiy/nginx-vim-syntax'
-
-Plug 'PHP-correct-Indenting', { 'for': 'php' }
-
-Plug 'Shougo/unite.vim'
-    let g:unite_split_rule = "botright"
-    let g:unite_source_history_yank_enable = 1
-    let g:unite_enable_start_insert = 1
-    let g:unite_source_history_yank_file = $HOME.'/.vim/yankring.txt'
-
-    augroup unite_custom
-        au!
-        au VimEnter * call unite#custom#source(
-            \ 'file,file/new,buffer,file_rec,file_rec/async,git_cached,git_untracked,directory',
-            \ 'matchers', 'matcher_fuzzy')
-
-        au VimEnter * call unite#custom#default_action(
-            \ 'directory', 'cd')
-
-        au VimEnter * call unite#filters#sorter_default#use(['sorter_selecta'])
-    augroup end
-
-    function! s:unite_my_settings()
-        imap <buffer> <C-R> <Plug>(unite_redraw)
-        imap <silent><buffer><expr> <C-T> unite#do_action('split')
-        imap <silent><buffer><expr> <C-G> unite#do_action('right')
-        call unite#custom#alias('ash_review', 'split', 'ls')
-    endfunction
-
-    let g:unite_source_grep_max_candidates = 200
-
-    let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '-i --line-numbers --nocolor --nogroup --hidden'
-    let g:unite_source_grep_recursive_opt = ''
-
-    map <C-P> :Unite -hide-source-names git_cached git_untracked buffer<CR>
-    map <C-Y> :Unite -hide-source-names history/yank<CR>
-    map <C-U> :Unite -hide-source-names buffer<CR>
-    map <C-E><C-U> :Unite -hide-source-names buffer file_rec/async<CR>
-    map <C-E><C-G> :Unite -hide-source-names grep:.<CR>
-    map <C-E><C-H> <Leader>*:exec "Unite -hide-source-names grep:.::".substitute(@/, "\\\\<\\(.*\\)\\\\>", "\\1", "")."(?=\\\\W)"<CR>
-    map <C-E><C-E> :Unite -hide-source-names directory:~/sources/<CR>
-    map <C-E><C-A> :Unite ash_inbox<CR>
-    map <C-E><C-R> :UniteResume<CR>
-
-Plug 'Shougo/vimproc'
-
-Plug 'yuku-t/unite-git'
-
-Plug 'bling/vim-airline'
-    let g:airline_powerline_fonts = 1
-    let g:airline_theme = 'lucius'
-    let g:airline#extensions#whitespace#symbol = '☼'
-
-Plug 'seletskiy/matchem'
-    " required to be setup before ultisnips inclusion
-    let g:UltiSnipsJumpForwardTrigger = '<C-J>'
-    let g:UltiSnipsJumpBackwardTrigger = '<C-K>'
-
-    augroup fix_matchem_and_ultisnips
-        au!
-        " wow, \<lt>lt>c-o> will expand to \<lt>c-o> by feedkeys, and then to
-        " <c-o> by matchem.
-        au VimEnter * inoremap <expr> <C-O> (
-            \ pumvisible()
-                \ ? feedkeys("\<C-N>")
-                \ : feedkeys("\<C-R>=g:MatchemRepeatFixupFlush('\<lt>lt>c-o>')\<CR>\<C-O>", 'n')
-            \ ) ? '' : ''
-    augroup end
-
-Plug 'SirVer/ultisnips'
-    let g:UltiSnipsSnippetDirectories = [$HOME.'/.vim/UltiSnips']
-    let g:UltiSnipsEnableSnipMate = 0
-    let g:UltiSnipsEditSplit = "horizontal"
-
-    map <Leader>` :UltiSnipsEdit<CR>G
-    vmap <Leader>` y:UltiSnipsEdit<CR>Go<CR>snippet HERE<CR>endsnippet<ESC>k]p?HERE<CR>zzciw
-
-Plug 'epmatsw/ag.vim'
-
-Plug 'Valloric/YouCompleteMe'
-    let g:ycm_key_list_select_completion = ['<C-N>', '<Down>']
-    let g:ycm_allow_changing_updatetime = 0
-    let g:ycm_confirm_extra_conf = 1
-    let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-    let g:ycm_collect_identifiers_from_comments_and_strings = 1
-
-Plug 'lyokha/vim-xkbswitch'
-    let g:XkbSwitchLib = '/usr/lib/libxkbswitch.so'
-    let g:XkbSwitchEnabled = 1
-
-Plug 'kristijanhusak/vim-multiple-cursors'
-
-Plug 'fatih/vim-go', {'for': 'go'}
-    let g:go_fmt_command = "goimports"
-    let g:go_snippet_engine = "skip"
-
-Plug 'kshenoy/vim-signature'
-    let g:SignatureMarkOrder = "\m"
-
-Plug 'vim-ruby/vim-ruby'
-
-Plug 'michaeljsmith/vim-indent-object'
-
-Plug 'xolox/vim-misc'
-
-Plug 'cespare/vim-toml'
-
-Plug 'osyo-manga/vim-over', {'on': 'OverCommandLine'}
-    nnoremap H :OverCommandLine %s/\v<CR>
-    vnoremap H :OverCommandLine s/\v<CR>
-
-    map L <Leader>*:OverCommandLine %s//<CR>
-
-Plug 'inkarkat/argtextobj.vim'
-
-Plug 'kovetskiy/ash.vim'
-
-Plug 'maksimr/vim-jsbeautify'
-
-Plug 'seletskiy/vim-pythonx'
-
-Plug 'justinmk/vim-sneak'
-    let g:sneak#streak = 1
-
-    nmap gs <Plug>Sneak_S
-    vmap gs <Plug>Sneak_S
-
-    nmap f <Plug>Sneak_f
-    vmap f <Plug>Sneak_f
-    nmap F <Plug>Sneak_F
-    vmap F <Plug>Sneak_F
-
-Plug 'kovetskiy/vim-plugvim-utils'
-    augroup plugvim_bindings
-        au!
-        au BufRead .vimrc nnoremap <buffer> <Leader>r :call NewPlugFromClipboard()<CR>
-    augroup end
-
-Plug 'seletskiy/vim-nunu'
-
-Plug 'seletskiy/vim-over80'
-
-Plug 'kovetskiy/urxvt.vim'
-    let g:urxvt_fifo = $HOME . '/.tmp/urxvt.fifo'
-
-call plug#end()
-
-syntax on
-
+" Enable filetype plugins
+filetype on
 filetype plugin on
 filetype indent on
 
-" Hack to ensure, that ~/.vim is looked first
-set rtp-=~/.vim
-set rtp^=~/.vim
+" Set to auto read when a file is changed from the outside
+set autoread
 
-" Wow, will it work?
-set rtp-=/usr/share/vim/vimfiles
+" 80 column highlight
+set colorcolumn=80
 
-set encoding=utf-8
-set printencoding=cp1251
-set timeoutlen=200
-set wildmenu
-set undofile
-set undodir=$HOME/.vim/tmp/
-set directory=$HOME/.vim/tmp/
-set ttyfast
-set relativenumber
-set hlsearch
-set incsearch
-set history=500
+" Higlight cursor position
+" set cursorline
+" Completion
+set completeopt-=preview
+
+" => VIM user interface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set 3 lines to the cursor - when moving vertically using j/k
+set so=3
+
+" A buffer becomes hidden when it is abandoned
+"set hid
+
+" Configure backspace so it acts as it should act
+set backspace=eol,start,indent
+set whichwrap+=b
+
+" Ignore case when searching
+set ignorecase
+
+" When searching try to be smart about cases
 set smartcase
+
+" Highlight search results
+set hlsearch
+
+" Makes search act like search in modern browsers
+set incsearch
+
+" For regular expressions turn magic on
+set magic
+
+" Show matching brackets when text indicator is over them
+set showmatch
+
+" Display commands
+set showcmd
+
+" Display title
+set title
+
+" No annoying sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+" Diff
+set dip=filler,vertical
+
+" Enable numbers
+set number
+let g:my_relative_mode = 0
+
+" Mouse mode
+set mouse=nvh
+let g:my_mouse_mode = 1
+
+set clipboard+=unnamed " Глобальный буфер обмена (теперь копипаст работает между системой в вимом)
+
+if version >= 700
+    set history=64
+    set undolevels=1000
+endif
+
+" non printable
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if has('multi_byte')
+    if version >= 700
+        set listchars=tab:▸\ ,trail:·,eol:¶,extends:→,precedes:←,nbsp:×
+    else
+        set listchars=tab:▸\ ,trail:·,eol:¶,extends:→,precedes:←,nbsp:_
+    endif
+endif
+
+" => Files, backups and undo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Turn backup off, since most stuff is in SVN, git et.c anyway...
+set nobackup
+set nowb
+set noswapfile
+
+"Specify the behavior when switching between buffers
+try
+ set switchbuf=useopen,usetab,split
+ set stal=1
+catch
+endtry
+
+" => Text, tab and indent related
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Use spaces instead of tabs
 set expandtab
-set autoindent
+
+" Show autocomplete menu
+set wildmenu
+
+" Be smart when using tabs ;)
+"set smarttab
+
+" 1 tab == 4 spaces
 set shiftwidth=4
 set softtabstop=4
 set tabstop=4
-set backspace=2
+
+" Linebreak on 500 characters
+"set lbr
+"set tw=500
+
+set ai "Auto indent
+set si "Smart indent
+set nowrap "No wrap lines
+
+" Auto detect indent style
+let g:detectindent_preferred_expandtab = 1
+let g:detectindent_preferred_indent = 4
+
+" => Colors and Fonts
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Enable syntax highlighting
+syntax enable
+
+" solarized colorscheme
+let g:solarized_termcolors = 256
+let g:solarized_termtrans = 0
+set background=light
+colorscheme solarized
+hi Underlined cterm=underline
+
+" Set utf8 as standard encoding and en_US as the standard language
+set encoding=utf8
+
+" Use Unix as the standard file type
+set ffs=unix,dos,mac
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""" Plugins configs """"""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Supertab """"""""""""""""""
+"""""""""""""""""""""""""""""
+let g:SuperTabDefaultCompletionType = "<c-n>"
+
+" UltiSnip """"""""""""""""""
+"""""""""""""""""""""""""""""
+set runtimepath+=~/.vim/bundle/ultisnips
+let g:UltiSnipsEditSplit = "horizontal"
+let g:UltiSnipsSnippetDirectories=["UltiSnips"]
+
+" Airline line """"""""""""""
+"""""""""""""""""""""""""""""
+" Always show the status line
 set laststatus=2
-set gdefault
-set completeopt-=preview
-set nowrap
-set updatetime=150
-set showtabline=0
-set cino=(s,m1,+0
-set comments-=mb:*
-set lazyredraw
-set nofoldenable
-set noequalalways
-set winminheight=0
+"let g:Powerline_symbols = 'fancy'
+let g:airline_powerline_fonts=1
+" old vim-powerline symbols
+let g:airline#extensions#whitespace#symbol = '☼'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#tab_nr_type = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '│'
+let g:airline#extensions#tabline#right_sep = ''
+let g:airline#extensions#tabline#right_alt_sep = ''
+let g:airline#extensions#tabline#show_buffers = 0
 
-" autocomplete list numbers
-" autoinsert comment Leader
-" do not wrap line after oneletter word
-set formatoptions=qrn1tol
+" Unite """""""""""""""""""""
+"""""""""""""""""""""""""""""
+let g:unite_split_rule = "botright"
+let g:unite_enable_start_insert = 1
+let g:unite_source_history_yank_enable = 1
+let g:unite_source_history_yank_file = $HOME.'/.vim/yankring.txt'
 
-set list
-set lcs=eol:¶,trail:·,tab:\ \  " <- trailing space here
-set fcs=vert:│
-
-let html_no_rendering=1
-
-let g:EclimCompletionMethod = 'omnifunc'
-
-" Ctrl+Backspace in cmd line
-cmap <C-H> <C-W>
-" Alt+d
-cmap <Esc>d <S-Right><C-W>
-
-imap <C-T> <C-R>=strpart(search("[)}\"'`\\]>]", "c"), -1, 0)<CR><Right>
-
-imap <C-Y> u<TAB>
-
-map <Leader>~ :tabnew ~/.vimrc<CR>
-
-" there also ZZ mapping for snippets
-map ZZ :w\|bw<CR>
-
-noremap <Leader>v V`]
-noremap <Leader>p "1p
-
-nnoremap <C-H> <C-W>h
-nnoremap <C-J> <C-W>j
-nnoremap <C-K> <C-W>k
-nnoremap <C-L> <C-W>l
-nnoremap <C-_> <C-W>_
-
-nnoremap ? ?\v
-vnoremap ? ?\v
-nnoremap / /\v
-vnoremap / /\v
-vnoremap $ g_
-
-nnoremap <TAB> %
-
-noremap > >>
-noremap < <<
-imap <silent> <S-TAB> <C-O><<
-
-nnoremap Q qq
-nnoremap ! :g//norm @q<CR>
-vnoremap ! :g//norm @q<CR>
-vmap <expr> @ feedkeys(':norm @' . nr2char(getchar()) . "\<CR>")
-
-vmap <silent> > >gv
-vmap <silent> < <gv
-
-map <C-D> $%
-
-vmap ( S)i
-vmap ) S)%a
-
-inoremap jj <ESC>
-nnoremap j gj
-nnoremap k gk
-
-inoremap <F1> <ESC>
-nnoremap <F1> <ESC>
-nmap <F2> :w<CR>
-imap <F2> <ESC><F2>
-
-map <Leader>3 :b #<CR>
-map <Leader>c :cd %:h<CR>
-
-cnoremap <C-A> <Home>
-cnoremap <C-E> <End>
-cnoremap <Esc>b <S-Left>
-cnoremap <Esc>f <S-Right>
-
-map dsf dt(ds)
-
-augroup review_setting
+augroup unite_custom
     au!
-    au FileType diff nnoremap <buffer> <CR> o#<SPACE>
+    au VimEnter * call unite#custom#source(
+                \ 'file,file/new,buffer,file_rec,file_rec/async,git_cached,git_untracked,directory',
+                \ 'matchers', 'matcher_fuzzy')
+
+    au VimEnter * call unite#custom#default_action(
+                \ 'directory', 'cd')
+
+    au VimEnter * call unite#filters#sorter_default#use(['sorter_selecta'])
 augroup end
 
-augroup unite_setting
+call unite#filters#sorter_default#use(['sorter_rank'])
+
+function! s:unite_rec_git_or_file()
+    if fugitive#head() == ""
+        :Unite file_rec
+    else
+        :Unite git_cached git_untracked
+    endif
+endfunction
+
+function! s:unite_my_settings()
+    " Overwrite settings.
+    imap <silent><buffer><expr> <C-s>     unite#do_action('split')
+    nmap <silent><buffer><expr> <C-s>     unite#do_action('split')
+    imap <silent><buffer><expr> <C-v>     unite#do_action('right')
+    nmap <silent><buffer><expr> <C-v>     unite#do_action('right')
+endfunction
+
+augroup unite_autocmd
     au!
-    au FileType unite call s:unite_my_settings()
+    autocmd FileType unite call s:unite_my_settings()
 augroup end
 
-augroup erlang_indent
-    au!
-    au FileType erlang set indentexpr=""
-    au BufEnter *.erl,rebar.config,*.hrl set ai
-augroup end
+nmap <c-t> :Unite -hide-source-names file_rec<CR>
+nmap <c-p> :Unite -hide-source-names git_cached git_untracked buffer<CR>
+nmap <c-u> :Unite -hide-source-names buffer<CR>
+nmap <c-y> :Unite -hide-source-names history/yank<CR>
+map <C-E><C-U> :Unite -hide-source-names buffer file_rec/async<CR>
+map <C-E><C-G> :Unite -hide-source-names grep:.<CR>
+map <C-E><C-E> :Unite -hide-source-names directory:~/dev/<CR>
+map <C-E><C-R> :UniteResume<CR>
 
+" Ash section
+"""""""""""""""""""""""""""""
 augroup syntax_hacks
     au!
-    au FileType diff set nolist
+    au FileType diff syn match DiffComment "^#.*"
+    au FileType diff syn match DiffCommentIgnore "^###.*"
     au FileType diff call g:ApplySyntaxForDiffComments()
 augroup end
 
-augroup dir_autocreate
-    au!
-    au BufWritePre * if !isdirectory(expand('%:h')) | call mkdir(expand('%:h'),'p') | endif
-augroup end
-
-augroup skeletons
-    au!
-    " refactor with use of snippets
-    au BufNewFile *.php exec "normal I<?php\<ESC>2o"
-    au BufNewFile *.py exec "normal I# coding=utf8\<CR>\<ESC>xxo"
-    au BufNewFile rebar.config,*.app.src exec "normal I%% vim: et ts=4 sw=4 ft=erlang\<CR>\<ESC>xx"
-
-    au BufNewFile *.go call feedkeys("Ipa\<TAB>", "")
-    au BufNewFile PKGBUILD call feedkeys("Ipkgbuild\<TAB>", "")
-augroup end
-
-augroup ft_customization
-    au!
-    au BufEnter php setl noexpandtab
-    au FileType sql set ft=mysql
-    au FileType tex :e ++enc=cp1251
-    au BufEnter /data/projects/*.conf set ft=nginx
-    au BufEnter /data/projects/*.conf syn on
-    au FileType erlang setl comments=:%%%,:%%,:%
-    au FileType php setl comments+=mb:*
-augroup end
-
-augroup go_src
-    au!
-    au FileType go setl noexpandtab
-    au FileType nnoremap <buffer> K <Plug>(go-doc-vertical)
-    au FileType go nmap <buffer> <Leader>r <Plug>(go-run)
-    au FileType go map <buffer> <Leader>t <Plug>(go-test)
-    au FileType go map <buffer> <Leader>b <Plug>(go-build)
-    au BufRead,BufNewFile *.slide setfiletype present
-augroup end
-
-augroup vimrc
-    au!
-    au BufWritePost */.vimrc source % | AirlineRefresh
-    au BufWritePost */.vim/pythonx/*.py exec printf('py import %s; reload(%s)',
-                \ expand('%:t:r'),
-                \ expand('%:t:r'))
-augroup end
-
-augroup snippets
-    au!
-    au FileType snippets map <buffer> ZZ :w\|b#<CR>
-augroup end
-
-augroup quickfix
-    au!
-    au FileType qf set wrap
-augroup end
-
-augroup rainbow
-    au!
-    au VimEnter * RainbowParenthesesActivate
-    au Syntax * RainbowParenthesesLoadRound
-    au Syntax * RainbowParenthesesLoadBraces
-augroup end
-
-augroup confluence
-    au!
-    au BufRead /tmp/vimperator-confluence* set ft=html.confluence | call HtmlBeautify()
-
-    " trim empty <p><br/></p> from document
-    au BufRead /tmp/vimperator-confluence* map <buffer> <Leader>t :%s/\v[\ \t\n]+\<p\>([\ \t\n]+\<br\>)?[\ \t\n]+\<\/p\>/<CR>
-
-    " ugly hack to trim all inter-tags whitespaces
-    au BufWritePre /tmp/vimperator-confluence* %s/\v\>[\ \t\n]+\</></
-    au BufWritePost /tmp/vimperator-confluence* silent! undo
-augroup end
-
-com! BufWipe silent! bufdo! bw | enew!
-
-command! QuickFixOpenAll call QuickFixOpenAll()
-function! QuickFixOpenAll()
-    if empty(getqflist())
-        return
-    endif
-    let s:prev_val = ""
-    for d in getqflist()
-        let s:curr_val = bufname(d.bufnr)
-        if (s:curr_val != s:prev_val)
-            exec "edit " . s:curr_val
-        endif
-        let s:prev_val = s:curr_val
-    endfor
-endfunction
-
-fun! g:LightRoom()
-    set background=light
-    let g:seoul256_background = 255
-    call s:ApplyColorscheme()
-    hi underlined cterm=underline
-    hi CursorLineNr ctermfg=241 ctermbg=none
-    hi LineNr ctermfg=249 ctermbg=none
-    hi SignColumn ctermfg=none ctermbg=none
-    hi ColorColumn ctermbg=15
-    hi SpecialKey term=bold cterm=bold ctermfg=1 ctermbg=none
-    hi NonText ctermfg=254 cterm=none term=none
-    hi IncSearch cterm=none ctermfg=238 ctermbg=220
-
-    hi Cursor ctermbg=0 ctermfg=15
-    hi PmenuSel ctermbg=136 ctermfg=15 cterm=bold
-endfun
-
-fun! g:DarkRoom()
-    set background=dark
-    let g:seoul256_background = 234
-    call s:ApplyColorscheme()
-    hi underlined cterm=underline
-    hi CursorLineNr ctermfg=242 ctermbg=none
-    hi LineNr ctermfg=238 ctermbg=none
-    hi SignColumn ctermfg=none ctermbg=none
-    hi ColorColumn ctermbg=233
-    hi SpecialKey term=bold cterm=bold ctermfg=1 ctermbg=none
-    hi NonText ctermfg=235 cterm=none term=none
-    hi IncSearch cterm=none ctermfg=238 ctermbg=220
-
-    hi Cursor ctermbg=15 ctermfg=0
-    hi PmenuSel ctermbg=136 ctermfg=16 cterm=bold
-endfun
-
-fun! s:ApplyColorscheme()
-    colorscheme seoul256
-    hi! link WildMenu PmenuSel
-    hi erlangEdocTag cterm=bold ctermfg=14
-    hi erlangFunHead cterm=bold ctermfg=4
-    hi SPM1 ctermbg=1 ctermfg=7
-    hi SPM2 ctermbg=2 ctermfg=7
-    hi SPM3 ctermbg=3 ctermfg=7
-    hi SPM4 ctermbg=4 ctermfg=7
-    hi SPM5 ctermbg=5 ctermfg=7
-    hi SPM6 ctermbg=6 ctermfg=7
-    hi VertSplit cterm=none ctermbg=none ctermfg=16
-
-    " disable weird standout mode
-    hi ErrorMsg term=none
-    hi Todo term=none
-    hi SignColumn term=none
-    hi FoldColumn term=none
-    hi Folded term=none
-    hi WildMenu term=none
-    hi WarningMsg term=none
-    hi Question term=none
-    hi ErrorMsg term=none
-
-    hi SneakPluginTarget cterm=bold ctermbg=187 ctermfg=88
-    hi SneakStreakMask ctermbg=184 ctermfg=184 cterm=bold
-    hi SneakStreakTarget ctermbg=179 ctermfg=88 cterm=bold
-endfun
-
-if system('background') == "light\n"
-    call g:LightRoom()
-else
-    call g:DarkRoom()
-endif
 
 fun! g:ApplySyntaxForDiffComments()
-    syn match DiffCommentIgnore "^###.*" containedin=ALL
-    syn match DiffComment "^#.*" containedin=ALL
-    syn match DiffComment "^---.*" containedin=ALL
-    syn match DiffComment "^+++.*" containedin=ALL
-    syn match DiffComment "^@@ .*" containedin=ALL
-    syn match DiffAdded "^+" containedin=ALL
-    syn match DiffRemoved "^-" containedin=ALL
-    syn match DiffContext "^ " containedin=ALL
-
-
     if &background == 'light'
         hi DiffCommentIgnore ctermfg=249 ctermbg=none
         hi DiffComment ctermfg=16 ctermbg=254
@@ -507,8 +286,231 @@ fun! g:ApplySyntaxForDiffComments()
         hi DiffCommentIgnore ctermfg=249 ctermbg=none
         hi DiffComment ctermfg=15 ctermbg=237
     endif
-
-    hi DiffAdded ctermbg=192 ctermfg=123 cterm=bold
-    hi DiffRemoved ctermbg=216 ctermfg=146 cterm=bold
-    hi DiffContext ctermbg=253 ctermfg=253
 endfun
+
+
+" NERDTree """"""""""""""""""
+"""""""""""""""""""""""""""""
+let NERDTreeIgnore=['\.pyc$','\~$','__pycache__', '\.zip$', '\.tar$', '\.tar\.gz$']
+let NERDTreeShowLineNumbers = 0
+let NERDTreeMinimalUI=1
+
+" YouCompleteMe """""""""""""
+"""""""""""""""""""""""""""""
+let g:ycm_min_num_identifier_candidate_chars = 1
+let g:ycm_min_num_of_chars_for_completion = 1
+let g:ycm_auto_trigger = 1
+let g:ycm_error_symbol = '✗'
+let g:ycm_warning_symbol = '⚡'
+let g:ycm_key_list_select_completion = ['<C-N>', '<Down>']
+let g:ycm_allow_changing_update_time = 0
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""" Mappings """""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+noremap > >>
+noremap < <<
+
+" vim-over
+"""""""""""""""""""
+nnoremap H :OverCommandLine<cr>%s/\v
+vnoremap H :OverCommandLine<cr>s/\v
+
+" tagbar
+""""""""""""""""""
+nmap <F8> :TagbarOpen fjc<CR>
+
+" vim-go
+""""""""""""""""""
+augroup go_confs
+    au!
+    au FileType go setl noexpandtab
+
+    au FileType go nmap <leader>r <Plug>(go-run)
+    au FileType go nmap <leader>b <Plug>(go-build)
+    au FileType go nmap <leader>t <Plug>(go-test)
+    au FileType go nmap <Leader>i <Plug>(go-info)
+    au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
+    au FileType go nmap <Leader>gd <Plug>(go-doc)
+    au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+    au FileType go nmap <Leader>i <Plug>(go-info)
+    au FileType go nmap gd <Plug>(go-def)
+    au FileType go nmap <Leader>ds <Plug>(go-def-split)
+    au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
+    au FileType go nmap <Leader>dt <Plug>(go-def-tab)
+
+    " play.golang.org ft and syntax
+    function! s:playground()
+        set syntax=go ft=go
+    endfunction
+
+    au BufRead *play.golang.org* call s:playground()
+    au BufReadPost *play.golang.org* call s:playground()
+augroup end
+
+let g:go_fmt_command = "goimports"
+
+" With a map leader it's possible to do extra key combinations
+" like <leader>w saves the current file
+let mapleader = " "
+let g:mapleader = " "
+
+" Easy-motion
+""""""""""""""""""""""""
+let g:EasyMotion_do_mapping = 0
+map <Leader> <Plug>(easymotion-prefix)
+let g:EasyMotion_smartcase = 1
+nmap <leader>s <Plug>(easymotion-s2)
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
+nmap <leader>/ <Plug>(easymotion-sn)
+
+nmap <leader>qqq :bw<CR>
+
+" Fast saving
+nmap <leader>w :w<cr>
+" Show non printable characters
+nmap <leader>l :set list!<CR>
+" Toggle mouse selection
+nmap <leader>m :call ToggleMouse()<cr>
+
+" Visual mode pressing * or # searches for the current selection
+" Super useful! From an idea by Michael Naumann
+vnoremap <silent> * :call VisualSelection('f')<CR>
+vnoremap <silent> # :call VisualSelection('b')<CR>
+"
+" Treat long lines as break lines (useful when moving around in them)
+map j gj
+map k gk
+
+" Disable highlight when <leader><cr> is pressed
+map <silent> <leader><cr> :noh<cr>
+
+" Smart way to move between windows
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+" Close the current buffer
+map <leader>bd :bd<cr>
+
+" Useful mappings for managing tabs
+nmap <silent> <leader>cd :lcd %:p:h<cr>:pwd<cr>
+nmap T :tabnew
+
+" Remap VIM 0 to first non-blank character
+map 0 ^
+
+map <leader>cc :botright cope<cr>
+map <leader>] :cn<cr>
+map <leader>[ :cp<cr>
+
+" Gundo
+nnoremap <leader>gu :GundoToggle<CR>
+
+
+" Ultisnips
+nmap <leader>ss :UltiSnipsEdit<CR>
+
+" NERDTree
+nnoremap <leader>e :NERDTreeToggle<CR>
+
+" Fugitive mappings
+nnoremap <Leader>gs :Gstatus<cr>
+
+" Tab swtich with c-pgUp & c-pgDown
+nmap    <ESC>[5^    <C-PageUp>
+nmap    <ESC>[6^    <C-PageDown>
+nnoremap  <C-PageDown> :tabn<cr>
+nnoremap  <C-PageUp> :tabp<cr>
+
+" Toggle paste mode on and off
+map <leader>pp :setlocal paste!<cr>
+
+" Remove the Windows ^M - when the encodings gets messed up
+noremap <Leader>mmm mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
+
+" Toggle relative numbers
+nnoremap <Leader>n :call NumberToggle()<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""" Functions """"""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Enable mouse in visual, normal and help modes
+function! ToggleMouse()
+ if(g:my_mouse_mode == 0)
+  set mouse=nvh
+  let g:my_mouse_mode = 1
+ else
+  set mouse=
+  let g:my_mouse_mode = 0
+ endif
+endfunc
+
+function! CmdLine(str)
+    exe "menu Foo.Bar :" . a:str
+    emenu Foo.Bar
+    unmenu Foo
+endfunction
+
+function! VisualSelection(direction) range
+    let l:saved_reg = @"
+    execute "normal! vgvy"
+
+    let l:pattern = escape(@", '\\/.*$^~[]')
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
+
+    if a:direction == 'b'
+        execute "normal ?" . l:pattern . "^M"
+    elseif a:direction == 'gv'
+        call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
+    elseif a:direction == 'replace'
+        call CmdLine("%s" . '/'. l:pattern . '/')
+    elseif a:direction == 'f'
+        execute "normal /" . l:pattern . "^M"
+    endif
+
+    let @/ = l:pattern
+    let @" = l:saved_reg
+endfunction
+
+" Auto exec
+function! ModeChange()
+    if getline(1) =~ "^#!"
+        if getline(1) =~ "bin/"
+            silent !chmod a+x <afile>
+        endif
+    endif
+endfunction
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
+                   \ | wincmd p | diffthis
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""" Auto commands """"""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+augroup common_cmds
+    au!
+    "Move quickfix window to very bottom
+    autocmd FileType qf wincmd J
+    " Close nerd tree if it is the only window
+    autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+
+    " Return to last edit position when opening files (You want this!)
+    autocmd BufReadPost *
+                \ if line("'\"") > 0 && line("'\"") <= line("$") |
+                \   exe "normal! g`\"" |
+                \ endif
+
+    " Add execution writes if file starts with #! and contains bin
+    autocmd BufWritePost * call ModeChange()
+augroup end

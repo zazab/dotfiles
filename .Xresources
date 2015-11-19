@@ -1,26 +1,50 @@
-URxvt.loginShell: true
-URxvt.transparent: false
-URxvt.scrollBar: false
-URxvt.cursorBlink: false
-URxvt.saveLines: 4096
+!#include "/home/e.persienko/.config/color-schemes/solarized-light-xresources"
+#include "/home/persienko/.config/colorthemes/solarized-light"
+!-------------------------------------------------------------------------------
+! Xft settings
+!-------------------------------------------------------------------------------
+Xft.dpi:                    96
+Xft.antialias:              true
+Xft.hinting:                true
+Xft.hintstyle:              hintslight
+
+URxvt.letterSpace:          0
+URxvt.lineSpace:            0
+URxvt.depth:                24
+URxvt.geometry:             90x30
+URxvt.shading:              100
+URxvt.transparent:          false
+URxvt.urgentOnBell:         true
+!URxvt.visualBell:           true
+URxvt.loginShell:           true
+URxvt.saveLines:            100000
+URxvt.internalBorder: 		0
+
+! Fonts
+URxvt.allow_bold:           true
 URxvt.font: xft:Monaco:style=Regular:pixelsize=12
 URxvt.boldFont: xft:Monaco:style=Bold:pixelsize=12
-URxvt.letterSpace: 0
-URxvt.lineSpace: 0
-URxvt.termName: rxvt-unicode-256color
-URxvt.iso14755: False
-URxvt.iso14755_52: False
-URxvt.internalBorder: 0
-URxvt.perl-ext-common: -scrollback-selection,url-select,keyboard-select,autocomplete-ALL-the-things,fifo,vim-insert
-URxvt.url-select.launcher: i3-sensible-browser
-URxvt.keysym.M-u: url-select:select_next
-URxvt.url-select.autocopy: true
-URxvt.keysym.M-Escape: keyboard-select:activate
-URxvt.keysym.M-s: keyboard-select:search
-URxvt.keysym.M-slash: autocomplete-ALL-the-things:WORD-complete
-URxvt.keysym.M-question: autocomplete-ALL-the-things:skeleton-complete
-URxvt.keysym.M-equal: perl:fifo:start
-URxvt.fifo.file: /home/s.seletskiy/.tmp/urxvt.fifo
-URxvt.chdir: /home/s.seletskiy/
-URxvt.pointerBlank: true
-URxvt.buffered: false
+!URxvt*font: xft:Dejavu Sans Mono for Powerline:pixelsize=11
+!URxvt*boldFont: xft:DejaVu Sans Mono for Powerline:pixelsize=11:style=BoldForPowerline
+
+! Scrollbar
+URxvt.scrollStyle:          rxvt
+URxvt.scrollBar:            true
+
+! Perl extensions
+URxvt.perl-ext-common:      -scrollback-selection,url-select,keyboard-select,autocomplete-ALL-the-things,vim-insert
+URxvt.url-select.launcher: firefox
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+URxvt.keysym.M-s: perl:keyboard-select:search
+URxvt.keysym.M-slash: perl:aAtt:WORD-complete
+URxvt.keysym.M-question: perl:aAtt:skeleton-complete
+!URxvt.matcher.button:       middle
+!URxvt.url-launcher:         chromium
+URxvt.colorUL:              #4682B4
+
+! Cursor
+URxvt.cursorBlink:          true
+URxvt.cursorUnderline:      false
+! Pointer
+URxvt.pointerBlank:         true

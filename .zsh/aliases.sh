@@ -1,135 +1,66 @@
-unalias -m '*'
+# Aliases
+# Color aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
-alias l='ls'
-alias ls='ls --color=always'
-alias ll='ls -al'
-alias lt='ls -alt'
-alias g='git'
-alias gd='git diff'
-alias ga='git add'
-alias gdc='git diff --cached'
-alias gs='git status -s'
-alias gl='git log --oneline --graph --decorate --all'
-alias gc='git commit -v'
-alias gcm='git commit -m'
-alias gc!='git commit --amend'
-alias gcm!='git commit --amend -m'
-alias gp='git push'
-alias gpo='git push origin'
-alias gpm='git push seletskiy'
-alias gr='git remote'
-alias gres='git remote set-url'
-alias gpl='git pull --rebase'
-alias gplo='git pull --rebase && git push'
-alias gpls='git stash -u && git pull --rebase && git stash pop'
-alias gcl='git clone'
-alias gst='git stash'
-alias gr='git rebase'
-alias grc='git rebase --continue'
-alias gra='git rebase --abort'
-alias gstd='git stash -u && git stash drop'
-alias gstl='git stash -u && git pull --rebase && git stash pop'
-alias gco='git checkout'
-alias gb='git branch'
-alias grh='git reset HEAD'
-alias gi='git add -pi'
+# Other aliases
+alias -g M='|more'
+alias -g L='|less'
+alias -g H='|head'
+alias -g T='|tail'
+alias -g N='2>/dev/null'
+alias -g G='|grep'
+alias -g GO='|grep -o'
+alias -g SU='| sort | uniq'
 
-alias srm='ssh-keygen -R'
+alias ping="grc ping"
+alias traceroute="grc traceroute"
+alias make="grc make"
+alias diff="grc diff"
+alias cvs="grc cvs"
+alias netstat="grc netstat"
+alias logc="grc cat"
+alias logt="grc tail"
+alias logh="grc head"
 
-alias -g L='| less'
-alias -g G='| grep'
-alias -g GI='| grep -i'
-alias -g Gi=GI
-alias -g T='| tail'
-alias -g F='| less -F'
-alias -g X='| xclip'
-alias -g T1='| tail -n1'
-alias -g R='| xargs -n1'
-alias -g H='| head'
-alias -g H1='| head -n1'
+# Chef aliases
+alias kc="knife cookbook"
+alias kcl="knife client"
+alias kd="knife data bag"
+alias ke="knife environment"
+alias kn="knife node"
+alias kr="knife role"
+alias cuv="cat ~/dev/chef/cookbooks/version"
 
-alias w1='watch -n1 '
-alias sctl='sudo systemctl'
+# Git aliases
+alias gp="git push"
+alias gpl="git pull --rebase"
+alias gf="git fetch"
+alias gp="git push"
+alias gpt="git push --tags"
+alias gcl="git clone"
+alias ga="git add"
+alias gi="git add -pi"
+alias gl="git log --oneline --graph --decorate --all"
+alias gs="git status -sb"
+alias gco="git checkout"
 
-alias ipa='ip a'
+#alias ssh="TERM=rxvt-unicode && ssh"
+#alias -g Z="-t zsh"
 
-alias vim='vim --servername vim'
+zssh () { TERM=rxvt-unicode && ssh $1 -t "zsh || bash"}
+alias ssh="TERM=rxvt-unicode && ssh"
 
-alias d='dirs -v'
-alias dt='cd ~/sources/dotfiles'
-alias kb='cd ~/sources/kb'
+# ctls
+alias sctl="systemctl"
+alias jctl="journalctl"
 
-alias p='pacman'
-alias pp='sudo pacman -S'
-alias ppr='sudo pacman -R'
-alias pqo='sudo pacman -Qo'
-alias ppu='sudo pacman -U'
-
-alias run-help='man'
-
-alias psx='ps axfu'
-
-alias a=alias
-
-alias ma='mplayer -novideo'
-
-alias gob='go build'
-alias gog='go get -u'
-
-alias zr='. ~/.zshrc'
-
-for index ({1..9}) alias "$index=cd +${index}"; unset index
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-
-export KEYTIMEOUT=1
-bindkey -v
-
-bindkey -v "^P" history-substring-search-up
-bindkey -v "^N" history-substring-search-down
-bindkey -v "^A" beginning-of-line
-bindkey -v "^[[A" history-substring-search-up
-bindkey -v "^[[B" history-substring-search-down
-bindkey -v "^R" history-incremental-search-backward
-bindkey -v "^[[3~" delete-char
-bindkey -v "^Q" push-line
-bindkey -v '^A' beginning-of-line
-bindkey -v '^E' end-of-line
-bindkey -v '^?' backward-delete-char
-bindkey -v '^H' backward-delete-char
-bindkey -v '^W' backward-kill-word
-bindkey -v '^K' vi-kill-eol
-bindkey -v '^[[Z' reverse-menu-complete
-bindkey -v '^[d' delete-word
-
-bindkey -a '^[' vi-insert
-bindkey -a '^[d' delete-word
-bindkey '^[Od' backward-word
-bindkey '^[Oc' forward-word
-bindkey -a '^[Od' backward-word
-bindkey -a '^[Oc' forward-word
-bindkey '^H' backward-kill-word
-
-bindkey -a '?' run-help
-
-zle -N prepend-sudo prepend_sudo
-bindkey "^T" prepend-sudo
-function prepend_sudo() {
-    if grep -q '^sudo ' <<< "$BUFFER"; then
-        CURSOR=$(($CURSOR-5))
-        BUFFER=${BUFFER:5}
-        return
-    fi
-
-    if [ "$BUFFER" ]; then
-        BUFFER="sudo "$BUFFER
-    else
-        BUFFER="sudo "$(fc -ln -1)
-    fi
-    CURSOR=$(($CURSOR+5))
-}
+alias sudo="sudo "
+#alias heaverc="ssh -q chef -t heaverc"
+alias heavercdev="heaverc --config /etc/heaver/client-dev.yml"
+alias less="vimpager"
+alias vims="vim --servername Vim"
 
 autoload smart-insert-last-word
 bindkey "\e." smart-insert-last-word-wrapper
@@ -163,101 +94,11 @@ function smart-insert-prev-word() {
     fi
 }
 
-bindkey "^[[11^" noop
-zle -N noop noop
-function noop()  {
-}
-
-alias gclm='git-clone-me'
-function git-clone-me() {
-    local reponame="$1" ; shift
-    local clone_path="${1:-$reponame}"
-
-    git clone gh:seletskiy/$reponame ~/sources/$clone_path
-    cd ~/sources/$clone_path
-}
-
-alias gclg='git-clone-github'
-function git-clone-github() {
-    local reponame="$1"
-    local dirname="${2:-${reponame#*/}}"
-
-    git clone gh:$reponame ~/sources/$dirname
-    cd ~/sources/$dirname
-}
-
-
-alias grem='git-remote-add-me'
-function git-remote-add-me() {
-    if [ "$1" ]; then
-        local reponame="$1"; shift
-    else
-        local reponame=$(git remote show origin -n | awk '/Fetch URL/{print $3}' | cut -f2 -d/)
-    fi
-
-    git remote add seletskiy gh:seletskiy/$reponame "${@}"
-}
-
-# in case of servers that are know nothing about rxvt-unicode-256color
-# better ssh="TERM=xterm ssh" alias
-alias ssh='ssh-urxvt'
-function ssh-urxvt() {
-    # in case of stdin, stdout or stderr is not a terminal, fallback to ssh
-    if [[ ! ( -t 0 && -t 1 && -t 2 ) ]]; then
-        \ssh "$@"
-        return
-    fi
-
-    # if there more than one arg (hostname) without dash "-", fallback to ssh
-    local hostname=''
-    for arg in "$@"; do
-        if [ ${arg:0:1} != - ]; then
-            if [[ -n $hostname ]]; then
-                \ssh "$@"
-                return
-            fi
-            hostname=$arg
-        fi
-    done
-
-    # check terminal is known, if not, fallback to xterm
-    \ssh -t "$@" "infocmp >/dev/null 2>&1 || export TERM=xterm; LANG=$LANG \$SHELL"
-}
-
-function _ssh-urxvt() {
-    service="ssh" _ssh "${@}"
-}
-
-compdef _ssh-urxvt ssh-urxvt
-
-alias mgp='move-to-gopath'
-function move-to-gopath() {
-    local directory=${1:-.}
-    local site=${2:-github.com}
-    local remote=${3:-origin}
-
-    directory=$(readlink -f .)
-    cd $directory
-
-    local repo_path=$(git remote show $remote -n | awk '/Fetch URL/{print $3}' | cut -f2 -d:)
-    local target_path=$GOPATH/src/$site/$repo_path
-
-    mkdir -p $(dirname $target_path)
-
-    mv $directory $target_path
-
-    ln -sf $target_path $directory
-
-    cd $directory
-}
-
-function cd-to-vim-bundle() {
-    cd ~/.vim/bundle/$1
-}
-
-_cd-to-vim-bundle() {
-    cd-to-vim-bundle
-    _arguments -C '*:bundles:_directories'
-}
-
-compdef _cd-to-vim-bundle cd-to-vim-bundle
+# batrak aliases
+alias bk="batrak -LK"
+alias bl="batrak -L"
+alias bs="batrak -Sn"
+alias bt="batrak -Tn"
+alias ba="batrak -An"
+alias bm="batrak -Mn"
+alias bC="batrak -Cn"

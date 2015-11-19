@@ -1,4 +1,8 @@
 export DOTFILES_PROFILE={{DOTFILES_PROFILE}}
-export PATH=$HOME/bin:$HOME/.go/bin/:$PATH
-export GOPATH=~/.go/
+export GOPATH="$HOME/dev/goroot"
+export GOSRC="$HOME/dev/goroot/src"
+export PATH="$PATH:$HOME/bin:$GOPAH/bin"
 export EDITOR=vim
+export TERMINAL=urxvt
+export MC_SKIN="$HOME/.mc/solarized.ini"
+

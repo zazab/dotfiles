@@ -1,0 +1,716 @@
+# Snippets for Chef
+
+global !p
+    def cookbook_name():
+    import os.path
+        if os.path.isfile("metadata.rb"):
+            return os.path.basename(os.path.abspath("."))
+        elif os.path.isfile("../metadata.rb"):
+            return os.path.basename(os.path.abspath(".."))
+        else:
+            return "default"
+endglobal
+
+snippet default ""
+default['${1:apache}']['${2:dir}']          = '${3:/etc/apache2}'
+endsnippet
+
+snippet node ""
+node.default['${1:apache}']['${2:dir}']          = '${3:/etc/apache2}'
+endsnippet
+
+# http://docs.opscode.com/resource_common_actions.html
+snippet action "" !b
+action :${1:nothing}
+endsnippet
+
+# http://docs.opscode.com/resource_common_attributes.html
+snippet ignore_failure "" !b
+ignore_failure ${1:true}
+endsnippet
+
+snippet provider "" !b
+provider Chef::Provider::${1:Package::Rubygems}
+endsnippet
+
+snippet supports "" !b
+supports :status => :${1:true}, :restart => :${2:true}, :reload => :${3:true}
+endsnippet
+
+snippet retries "" !b
+retries ${1:1}
+retry_delay ${2:2}
+endsnippet
+
+# http://docs.opscode.com/resource_common_conditionals.html
+snippet not_if "" !b
+not_if '${1}'
+endsnippet
+
+snippet only_if "" !b
+only_if '${1}'
+endsnippet
+
+# http://docs.opscode.com/resource_cron.html
+snippet cron "" !b
+cron '${1:name}' do
+  hour '${2:5}'
+  minute '${3:0}'
+
+  command '${4:/bin/true}'
+end
+endsnippet
+
+snippet cronf "" !b
+cron '${1:name}' do
+  hour '${2:*}'
+  minute '${3:*}'
+  day '${4:*}'
+  month '${5:*}'
+  weekday '${6:*}'
+  command '${7:/bin/true}'
+  user '${8:root}'
+  mailto '${9:root@example.com}'
+  path '${10:/bin:/usr/bin}'
+  home '${11:/tmp}'
+  shell '${12:/bin/bash}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_deploy.html
+snippet deploy "" !b
+deploy '${1:/my/deploy/dir}' do
+  repo '${2:git@github.com/whoami/project}'
+  revision '${3:devlopment}' # or 'HEAD' or 'TAG_for_1.0' or (subversion) '1234'
+  user '${4:deploy_ninja}'
+  enable_submodules ${5:true}
+  migrate ${6:true}
+  migration_command '${7:rake db:migrate}'
+  environment '${8:RAILS_ENV' => 'production', 'OTHER_ENV' => 'foo}'
+  shallow_clone ${9:true}
+  keep_releases ${10:10}
+  action :deploy # or :rollback
+  restart_command 'touch tmp/restart.txt'
+  scm_provider Chef::Provider::Git # is the default, for svn: Chef::Provider::Subversion
+end
+endsnippet
+
+# http://docs.opscode.com/resource_directory.html
+snippet directory "" !b
+directory '${1:name}' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+
+  action :create
+end
+endsnippet
+
+snippet directoryf "" !b
+directory '${1:name}' do
+  owner '$create{2:root}'
+  group '${3:root}'
+  mode '${4:0755}'
+  path '${5:name}'
+  recursive ${6:false}
+
+  action :${7:create}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_env.html
+snippet env "" !b
+env '${1:RAILS_ENV}' do
+  value '${2:production}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_execute.html
+snippet execute "" !b
+execute '${1:name}' do
+  command '${2:ls -la}'
+  creates '${3:/tmp/something}'
+
+  action :${4:run}
+end
+endsnippet
+
+snippet executef "" !b
+execute '${1:name}' do
+  command '${2:ls -la}'
+  creates '$ls{3:/tmp/something}'
+  cwd '${4:/tmp}'
+  environment ({${5:'HOME' => '/home/myhome'}})
+  user '${6:root}'
+  group '${7:root}'
+  path '${8:['/opt/bin','/opt/sbin']}'
+  timeout ${9:3600}
+  returns ${10:0}
+  umask '${11:022}umask'
+
+  action :${12:run}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_file.html
+snippet file "" !b
+file '${1:name}' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+
+  action :create
+end
+endsnippet
+
+snippet filef "" !b
+file '${1:name}' do
+  path '${3:path}'
+  backup ${4:5}
+  owner '${5:root}'
+  group '${6:root}'
+  mode '${7:0644}'
+  content '${8:content here}'
+
+  action :${2:create}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_group.html
+snippet group "" !b
+group '${1:name}' do
+  gid ${2:999}
+  members [${3:'paco','vicente'}]
+
+  action :create
+end
+endsnippet
+
+# http://docs.opscode.com/resource_http_request.html
+snippet http_request "" !b
+http_request '${1:some message}' do
+  url '${2:http://example.com/check_in}'
+end
+endsnippet
+
+snippet http_requestp "" !b
+http_request '${1:posting data}' do
+  action :post
+  url '${2:http://example.com/check_in}'
+  message ${3::some => 'data'}
+  headers (${4:\{'AUTHORIZATION' => authorization\}})
+end
+endsnippet
+
+snippet inc "" !b
+include_recipe '${1:example::recipe}'
+endsnippet
+
+# http://docs.opscode.com/resource_link.html
+snippet link "" !b
+link '${1:/tmp/passwd}' do
+  to '${2:/etc/passwd}'
+end
+endsnippet
+
+snippet linkf "" !b
+link '${1:/tmp/passwd}' do
+  to '${2:/etc/passwd}'
+  link_type :${3:symbolic}
+  owner '${4:root}'
+  group '${5:root}'
+end
+endsnippet
+
+snippet log "" !b
+log ('${1:your string to log}') { level :${2:debug} }
+endsnippet
+
+snippet meta "" !b
+name '${1:`basename $PWD`}
+maintainer '${2:`git config --get user.name`}'
+maintainer_email '${3:`git config --get user.email`}'
+license '${4:Apache 2.0}'
+description '${5:Installs/Configures `basename $PWD`}'
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
+version '${6:0.0.1}'
+endsnippet
+
+snippet notifies "" !b
+notifies :${1:restart}, '${2:service}[${3:name}]'
+endsnippet
+
+snippet subscribes "" !b
+subscribes :${1:restart}, '${2:template}[${3:name}]'
+endsnippet
+
+snippet pak "" !b
+package '${1:name}' do
+  action :${2:install}
+  version '${3:1.0-1}'
+end
+endsnippet
+
+snippet pac "" !b
+package '${1:name}' do
+  action :${2:install}
+  version '${3:1.0-1}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_remote_file.html
+snippet remote_file "" !b
+remote_file '${1:/tmp/remote_file}' do
+  owner '${2:root}'
+  group '${3:root}'
+  mode '${4:0644}'
+  source '${5:http://www.example.com/remote_file}'
+  checksum '${6:sha256checksum}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_remote_directory.html
+snippet remote_directory "" !b
+remote_directory '${1:/tmp/remote_something}' do
+  source '${2:something}'
+  files_backup ${3:10}
+  files_owner '${4:root}'
+  files_group '${5:root}'
+  files_mode ${6:0644}
+  owner '${7:nobody}'
+  group '${8:nobody}'
+  mode ${9:0755}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_cookbook_file.html
+snippet cookbook_file "" !b
+cookbook_file '${1:/tmp/cookbook_test_file}' do
+  owner '${2:root}'
+  group '${3:root}'
+  mode '${4:0644}'
+  path '${5:/tmp/test}'
+  action ${6::create_if_missing}
+end
+endsnippet
+
+snippet role "" !b
+name '${1:role name}'
+description '${2:Description for the role}'
+env_run_lists '${3:role name}' => [
+run_list(
+  $0
+)'
+default_attributes(
+  ${4::attribute => 'example'}
+)
+endsnippet
+
+# http://docs.opscode.com/resource_ruby_block.html
+snippet ruby "" !b
+ruby_block '${1:reload client config}' do
+  block do
+      ${0:Chef::Config.from_file('/Chefetc/chef/client.rb')}
+  end
+end
+endsnippet
+
+# http://docs.opscode.com/resource_scm.html
+snippet git "" !b
+git '${1:/home/user/deployment}' do
+  repository '${2:git@github.com:gitsite/deploymentployment.git}'
+  reference '${3:master}'
+  user '${4:user}'
+  group '${5:group}'
+  action ${6::sync}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_script.html
+snippet bash "" !b
+bash '${1:install something}' do
+  user '${2:root}'
+  cwd '${3:/tmp}'
+  code <<cwd-EOH
+  $0
+  EOH
+end
+endsnippet
+
+snippet python "" !b
+python '${1:install something}' do
+  user '${2:root}'
+  cwd '${3:/tmp}'
+  code <<-cwdEOH
+  $0
+  EOH
+end
+endsnippet
+
+# http://docs.opscode.com/resource_service.html
+snippet service "" !b
+service '${1:name}' do
+  supports :status => ${2:true}, :restart => ${3:true}, :truereload => ${4:true}
+  action ${5:[ :enable, :start ]}
+end
+endsnippet
+
+snippet servicep "" !b
+service '${1:name}' do
+  pattern '${2:pattern}'
+  supports :status => ${3:true}, :restart => ${4:true}, :reload => ${5:true}
+  action ${6:[ :enable, :start ]}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_template.html
+snippet template "" !b
+template '${1:name}' do
+  source '${2:source}.erb'
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+endsnippet
+
+snippet templatev "" !b
+template '${1:name}' do
+  source '${2:source}.erb'
+  owner 'root'
+  group 'root'
+  node '0644'
+  variables( ${3::config_var => node[:configs][:config_var]}  )
+end
+endsnippet
+
+# http://docs.opscode.com/resource_user.html
+snippet user "" !b
+user '${1:username}' do
+  action :create
+  comment '${2:Random User}'
+  uid ${3:1000}
+  gid '${4:users}'
+  home '${5:/home/random}'
+  shell '${6:/bin/zsh}'
+  password '${7:\$1\$JJsvHslV\$szsCjVEroftprNn4JHtDi.}'
+  supports :manage_home =>manage_home true
+end
+endsnippet
+
+# http://docs.opscode.com/resource_ifconfig.html
+snippet ifconfig "" !b
+ifconfig '${1:192.186.0.1}' do
+  device '${2:eth0}'
+  action '${3::add}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_route.html
+snippet route "" !b
+route '${1:10.0.1.10/32}' do
+  gateway '${2:10.0.0.20}'
+  device '${3:eth1}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_mdadm.html
+snippet mdadm "" !b
+mdadm '${1:/dev/md0}' do
+  devices ${2:[ '/dev/sda', '/dev/sdb1' ]}
+  level ${3:1}
+  chunk ${4:64}
+  action ${5:[:create, :assemble]}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_mount.html
+snippet mount "" !b
+mount '${1:/mnt/volume1}' do
+  device '${2:/dev/sdb1}'
+  fstype '${3:xfs}'
+  options '${4:rw}'
+  action ${5:[:mount, :enable]}
+end
+endsnippet
+
+snippet mount_nfs "" !b
+mount '${1:/export/www}' do
+  device '${2:nas1prod:/export/web_sites}'
+  fstype '${3:nfs}'
+  options '${4:rw}'
+  action ${5:[:mount, :enable]}
+end
+endsnippet
+
+snippet mount_tmpfs "" !b
+mount '${1:/mount/tmp}' do
+  pass ${2:0}
+  device '${3:/dev/null}'
+  fstype '${4:tmpfs}'
+  options '${5:mode=755,size=500m}'
+  action ${6:[:mount, :enable]}
+end
+endsnippet
+
+snippet mount_windows "" !b
+mount '${1:T:}' do
+  device '${2:\\\\hostname.example.com\\folder}'
+  action ${3::mount}
+end
+endsnippet
+
+# http://docs.opscode.com/resource_ohai.html
+snippet oahi
+oahi '${1:reload_passwd}' do
+  action ${2::nothing}
+  plugin '${3:passwd}'
+end
+endsnippet
+
+# http://docs.opscode.com/resource_powershell_script.html
+snippet powershell "" !b
+powershell '${1:read-env-var}' do
+  cwd ${2:Chef::Config[:file_cache_path]}
+  environment ${3:(\{'foo' => 'BAZ'\})}
+  code <<-EOH
+  $0
+  EOH
+end
+endsnippet
+
+# http://docs.opscode.com/resource_yum.html
+snippet yum_package "" !b
+yum_package '${1:netpbm}' do
+  version '${2:10.35.58-8.el5}'
+end
+endsnippet
+
+snippet recipe_header "" !b
+#
+# Cookbook Name:: ${1:cookbook}
+# Recipe:: ${2:`!v expand('%:r')`}
+#
+# Copyright `!v strftime("%Y")`, ${3:`git config --get user.name`}.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+$0
+endsnippet
+
+snippet attributes_header "" !b
+#
+# Cookbook Name:: ${1:cookbook}
+# Attributes:: ${2:`!v expand('%:r')`}
+#
+# Copyright `!v strftime("%Y")`, ${3:`git config --get user.name`}.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+$0
+endsnippet
+
+######################
+#  openssl cookbook  #
+######################
+
+snippet secure_password "" !b
+include Opscode::OpenSSL::Password
+
+set_unless[:my_password] = secure_password
+endsnippet
+
+########################
+#  logrotate cookbook  #
+########################
+
+snippet logrotate "" !b
+logrotate_app '${1:tomcat-myapp}' do
+  cookbook 'logrotate'
+  path '${2:/var/log/tomcat/myapp.log}'
+  options [${3:'missingok', 'delaycompress', 'notifempty'}]
+  frequency '${4:daily}'
+  rotate ${5:30}
+  create '${6:0644 root adm}'
+end
+endsnippet
+
+##################
+#  ark cookbook  #
+##################
+
+snippet arkf "" !b
+ark '${1:haproxy}' do
+  url  '${2:http://haproxy.1wt.eu/download/1.5/src/snapshot/haproxy-ss-20120403.tar.gz}'
+  version '${3:1.5}'
+  checksum '${4:ba0424bf7d23b3a607ee24bbb855bb0ea347d7ffde0bec0cb12a89623cbaf911}'
+  make_opts [ ${5:'TARGET=linux26'} ]
+  prefix_root '${6:/opt}'
+  prefix_home '${7:/opt}'
+  prefix_bin  '${8:/opt/bin}'
+  action ${9::install_with_make}
+end
+endsnippet
+
+snippet ark "" !b
+ark '${1:ivy}' do
+  path '${2:/home/foobar}'
+  url '${3:http://someurl.example.com/ivy.tar.gz}'
+  checksum '${4:89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5}'
+  action ${5::put}
+end
+endsnippet
+
+##################
+#  php cookbook  #
+##################
+
+snippet pearc "" !b
+php_pear_channel '${1:pear.horde.org}' do
+  action ${2::discover}
+end
+endsnippet
+
+snippet pearf "" !b
+remote_file '${1:#{Chef::Config[:file_cache_path]}/symfony-channel.xml}' do
+  source '${2:http://pear.symfony-project.com/channel.xml}'
+  mode ${3:0644}
+end
+
+php_pear_channel '${4:symfony}' do
+  channel_xml '${5:#{Chef::Config[:file_cache_path]}/symfony-channel.xml}'
+  action ${6::add}
+end
+endsnippet
+
+snippet pearm "" !b
+php_pear '${1:XML_RPC}' do
+  version '${2:1.5.4}'
+  action ${3::install}
+end
+endsnippet
+
+###################
+#  sudo cookbook  #
+###################
+
+snippet sudo "" !b
+sudo '${1:tomcat}' do
+  user      '${2:%tomcat}'    # or a username
+  runas     '${3:app_user}'   # or 'app_user:tomcat'
+  nopasswd  ${4:false}
+  commands  [${5:'/etc/init.d/tomcat restart'}]
+end
+endsnippet
+
+##################
+#  gem cookbook  #
+##################
+
+snippet gem "" !b
+gem_package '${1:rails}' do
+  source '${2:https://rubygems.org}'
+end
+endsnippet
+
+##################
+#  apt cookbook  #
+##################
+
+snippet apt_repository "" !b
+apt_repository '${1:dotdeb}' do
+  uri '${2:http://packages.dotdeb.org}'
+  distribution node['lsb']['codename']
+  components ['main']
+  key '${4:http://www.dotdeb.org/dotdeb.gpg}'
+end
+endsnippet
+
+snippet pin_package "" !b
+apt_preference '${1:libmysqlclient16}' do
+  pin '${2:version 5.1.49-3}'
+  pin_priority '${3:700}'
+end
+endsnippet
+
+snippet pin_repo "" !b
+apt_preference '${1:dotdeb}' do
+  glob '*'
+  pin '${2:origin packages.dotdeb.org}'
+  pin_priority '${3:700}'
+end
+endsnippet
+
+##############################
+#  simple_iptables cookbook  #
+##############################
+
+snippet srule "" !b
+simple_iptables_rule '${1:http}' do
+  rule [ ${2:'--proto tcp --dport 80',
+         '--proto tcp --dport 443'} ]
+  jump '${3:ACCEPT}'
+end
+snippetend
+
+snippet spolicy "" !b
+simple_iptables_policy '${1:INPUT}' do
+  policy '${2:DROP}'
+end
+snippetend
+
+snippet slog "" !b
+simple_iptables_rule '${1:system}' do
+  rule '${2:--match limit --limit 5/min --jump LOG --log-prefix \'iptables denied: \' --log-level 7}'
+  jump ${3:false}
+end
+endsnippet
+
+snippet sredirect "" !b
+simple_iptables_rule '${1:tomcat}' do
+  table '${2:nat}'
+  direction '${3:PREROUTING}'
+  rule [ ${4:'--protocol tcp --dport 80 --jump REDIRECT --to-port 8080',
+         '--protocol tcp --dport 443 --jump REDIRECT --to-port 8443'} ]
+  jump ${5:false}
+end
+endsnippet
+
+#######################
+#  artifact bookbook  #
+#######################
+
+snippet artifact "" !b
+artifact_deploy '${1:my-artifact}' do
+  version           '${2:1.0.0}'
+  artifact_location '${3:http://www.fooo.com/my-artifact-1.0.0.tgz}'
+  deploy_to         '#{4:/srv/my-artifact}'
+  owner             node[${5::artifact_owner}]
+  group             node[${6::artifact_group}]
+  symlinks({
+    'log' => 'log'
+  })
+  force             node[:force_deploy]
+end
+endsnippet
+
+# vim:ft=snippets:

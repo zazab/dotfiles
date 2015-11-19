@@ -1,19 +1,34 @@
-export SHELL=/bin/zsh
-export TERMINAL=urxvt
-export PATH=$HOME/bin:$HOME/.go/bin/:$PATH
-export EDITOR=vim
+#!/bin/sh
+#
+# ~/.xinitrc
+#
+# Executed by startx (run your window manager from here)
 
-xset +fp /usr/share/fonts/local
-xset fp rehash
-xset s 1200
-xset dpms 1200 1200 1200
-xrdb -merge ~/.Xresources
-~/bin/reconfig-kbd
-sudo bash -c 'echo 1 > /proc/sys/kernel/sysrq'
-xautolock -time 15 -locker ~/bin/lock-screen &
+if [ -d /etc/X11/xinit/xinitrc.d ]; then
+    for f in /etc/X11/xinit/xinitrc.d/*; do
+        [ -x "$f" ] && . "$f"
+    done
+    unset f
+fi
+
+if [ -d /etc/xdg/autostart ]; then
+    for f in /etc/xdb/autostart/*; do
+        [ -x "$f" ] && . "$f"
+    done
+    unset f
+fi
+
 background {{BACKGROUND}}
 export BACKGROUND=$(background)
-synclient TouchpadOff=1
-keynav &
-while :; do xsel -o|xsel -b; sleep 0.05; done &
-exec i3
+
+xset b off
+xrdb -merge .Xresources
+xscreensaver -no-splash &A
+# Plase your xrandr script to xrandr.sh
+$HOME/.screenlayout/nvidia-hdmi-dvi.sh
+#start-pulseaudio-x11
+/home/persienko/dev/goroot/bin/chrome-editor sh -c 'i3-msg "workspace 2" && vim --remote-tab-wait $0 && i3-msg "workspace 2"' &> ~/.chrome-editor.log &
+sudo /home/persienko/dev/goroot/bin/shift-shift -match="razer"&
+/home/persienko/bin/reconfig-kbd
+
+exec dbus-launch i3
