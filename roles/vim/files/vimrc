@@ -1,0 +1,594 @@
+set nocompatible               " be iMproved
+filetype off                   " required!
+
+
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !mkdir -p ~/.vim/autoload
+  silent !curl -fLo ~/.vim/autoload/plug.vim
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall
+endif
+
+"set rtp+=~/.vim/bundle/Vundle.vim/
+call plug#begin('~/.vim/bundle')
+
+" let Vundle manage Vundle
+" required!
+Plug 'gmarik/Vundle.vim'
+
+" visual
+"Plug 'seletskiy/vim-over80'
+Plug 'altercation/vim-colors-solarized'
+Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+Plug 'scrooloose/nerdtree'
+
+" Speedups
+Plug 'seletskiy/vim-nunu'
+
+" Unite
+Plug 'Shougo/unite.vim'
+Plug 'yuku-t/unite-git'
+Plug 'Shougo/neomru.vim'
+
+" Git
+Plug 'tpope/vim-fugitive'
+
+" Langs
+Plug 'posva/vim-vue'
+Plug 'digitaltoad/vim-pug'
+Plug 'fatih/vim-go'
+Plug 'cespare/vim-toml'
+Plug 'lervag/vimtex'
+Plug 'pangloss/vim-javascript'
+
+" Completion
+Plug 'Valloric/YouCompleteMe'
+
+" Movement
+Plug 'Lokaltog/vim-easymotion'
+
+"Plug 'ervandew/supertab'
+Plug 'majutsushi/tagbar'
+
+Plug 'FooSoft/vim-argwrap'
+
+" syntastic
+Plug 'scrooloose/syntastic'
+
+" snippets
+Plug 'reconquest/vim-pythonx'
+Plug 'SirVer/ultisnips'
+    let g:UltiSnipsEditSplit = "horizontal"
+    let g:UltiSnipsSnippetDirectories = [
+    \     $HOME . '/.vim/UltiSnips/',
+    \     $HOME . '/.vim/bundle/snippets/'
+    \]
+    let g:UltiSnipsEnableSnipMate = 0
+    let g:UltiSnipsExpandTrigger="<TAB>"
+    let g:UltiSnipsUsePythonVersion = 2
+
+    augroup textwidth_for_snippets
+        au!
+        au FileType snippets set textwidth=0
+    augroup end
+Plug 'honza/vim-snippets'
+
+Plug 'ciaranm/detectindent'
+Plug 'tpope/vim-surround'
+
+" Disabled
+"  Plug 'osyo-manga/vim-over' " replace with preview
+
+call plug#end()
+
+" With a map leader it's possible to do extra key combinations
+" like <leader>w saves the current file
+let mapleader = " "
+let g:mapleader = " "
+
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set update time 500ms
+set updatetime=5000 " was 500
+
+" Enable filetype plugins
+filetype on
+filetype plugin on
+filetype indent on
+
+" Set to auto read when a file is changed from the outside
+set autoread
+
+" 80 column highlight
+set colorcolumn=80
+
+" Completion
+set completeopt-=preview
+
+" => VIM user interface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set 5 lines to the cursor - when moving vertically using j/k
+set so=5
+
+" Configure backspace so it acts as it should act
+"set backspace=eol,start,indent
+set whichwrap+=b
+
+" Ignore case when searching
+set ignorecase
+
+" When searching try to be smart about cases
+set smartcase
+
+" Highlight search results
+set hlsearch
+
+" Makes search act like search in modern browsers
+set incsearch
+
+" For regular expressions turn magic on
+set magic
+
+" Show matching brackets when text indicator is over them
+set showmatch
+
+" Display commands
+set showcmd
+
+" Display title
+set title
+
+" No annoying sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+" Diff
+"set dip=filler,vertical
+
+" Enable numbers
+set number
+
+" Mouse mode
+set mouse=nv
+let g:my_mouse_mode = 1
+
+set clipboard+=unnamed " Глобальный буфер обмена (теперь копипаст работает между системой в вимом)
+
+set history=64
+set undolevels=1000
+
+" syntastic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_loc_list_height = 5
+let g:syntastic_auto_loc_list = 0
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_go_checkers = ['gometalinter']
+let g:syntastic_go_gometalinter_args = '--config ~/.config/gometalinter.json --fast'
+
+let g:syntastic_javascript_checkers = ['eslint']
+
+
+" non printable
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if has('multi_byte')
+    set listchars=tab:▸\ ,trail:·,eol:¶,extends:→,precedes:←,nbsp:×
+endif
+
+" => Files, backups and undo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Turn backup off, since most stuff is in SVN, git et.c anyway...
+set nobackup
+set nowb
+set noswapfile
+
+"Specify the behavior when switching between buffers
+try
+ set switchbuf=useopen
+ set stal=1
+catch
+endtry
+
+" => Text, tab and indent related
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Use spaces instead of tabs
+set expandtab
+
+" Show autocomplete menu
+set wildmenu
+
+" Be smart when using tabs ;)
+"set smarttab
+
+" 1 tab == 4 spaces
+set shiftwidth=4
+set softtabstop=4
+set tabstop=4
+
+" Linebreak on 500 characters
+"set lbr
+"set tw=500
+
+set ai "Auto indent
+set si "Smart indent
+set nowrap "No wrap lines
+
+" Auto detect indent style
+let g:detectindent_preferred_expandtab = 1
+let g:detectindent_preferred_indent = 4
+
+" => Colors and Fonts
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Enable syntax highlighting
+syntax enable
+
+" solarized colorscheme
+let g:solarized_termcolors = 256
+let g:solarized_termtrans = 0
+set background=light
+colorscheme solarized
+hi Underlined cterm=underline
+
+" Set utf8 as standard encoding and en_US as the standard language
+set encoding=utf8
+
+" Use Unix as the standard file type
+set ffs=unix,dos,mac
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""" Plugins configs """"""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" arg-wrap """"""""""""""""""
+"""""""""""""""""""""""""""""
+nnoremap <silent> <leader>a :ArgWrap<cr>
+
+augroup argwrap
+    au!
+    au Filetype * let g:argwrap_tail_comma = 0  " default value
+    au FileType go let g:argwrap_tail_comma = 1 " go wants tail comma
+augroup end
+
+" Supertab """"""""""""""""""
+"""""""""""""""""""""""""""""
+" let g:SuperTabDefaultCompletionType = "<c-n>"
+
+" Airline line """"""""""""""
+"""""""""""""""""""""""""""""
+" Always show the status line
+set laststatus=2
+"let g:Powerline_symbols = 'fancy'
+let g:airline_powerline_fonts=1
+" old vim-powerline symbols
+let g:airline#extensions#whitespace#symbol = '☼'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#tab_nr_type = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '│'
+let g:airline#extensions#tabline#right_sep = ''
+let g:airline#extensions#tabline#right_alt_sep = ''
+let g:airline#extensions#tabline#show_buffers = 0
+
+" next-indentation """"""""""
+"""""""""""""""""""""""""""""
+"nnoremap { :IndentationGoUp<cr>
+"nnoremap } :IndentationGoDown<cr>
+
+" Unite """""""""""""""""""""
+"""""""""""""""""""""""""""""
+let g:unite_split_rule = "botright"
+let g:unite_enable_start_insert = 1
+let g:unite_source_history_yank_enable = 1
+let g:unite_source_history_yank_file = $HOME.'/.vim/yankring.txt'
+
+augroup unite_custom
+    au!
+    au VimEnter * call unite#custom#source(
+                \ 'file,file/new,buffer,file_rec,file_rec/async,git_cached,git_untracked,directory',
+                \ 'matchers', 'matcher_fuzzy')
+
+    au VimEnter * call unite#custom#default_action(
+                \ 'directory', 'cd')
+
+    au VimEnter * call unite#filters#sorter_default#use(['sorter_selecta'])
+augroup end
+
+call unite#filters#sorter_default#use(['sorter_rank'])
+
+function! s:unite_rec_git_or_file()
+    if fugitive#head() == ""
+        :Unite file_rec
+    else
+        :Unite git_cached git_untracked
+    endif
+endfunction
+
+function! s:unite_my_settings()
+    " Overwrite settings.
+    imap <silent><buffer><expr> <C-s>     unite#do_action('split')
+    nmap <silent><buffer><expr> <C-s>     unite#do_action('split')
+    imap <silent><buffer><expr> <C-v>     unite#do_action('right')
+    nmap <silent><buffer><expr> <C-v>     unite#do_action('right')
+endfunction
+
+augroup unite_autocmd
+    au!
+    autocmd FileType unite call s:unite_my_settings()
+augroup end
+
+nmap <c-t> :Unite -hide-source-names file_rec<CR>
+nmap <c-p> :Unite -hide-source-names git_cached git_untracked buffer<CR>
+nmap <c-u> :Unite -hide-source-names buffer<CR>
+"nmap <c-y> :Unite -hide-source-names history/yank<CR>
+"nmap <leader>ai :Unite ash_inbox<CR>
+"nmap <c-a> :Unite ash_lsreviews<CR>
+map <C-E><C-U> :Unite -hide-source-names buffer file_rec/async<CR>
+"map <C-E><C-G> :Unite -hide-source-names grep:.<CR>
+"map <C-E><C-E> :Unite -hide-source-names directory:~/dev/<CR>
+"map <C-E><C-R> :UniteResume<CR>
+
+" Ash section
+"""""""""""""""""""""""""""""
+"augroup syntax_hacks
+    "au!
+    "au FileType diff syn match DiffComment "^#.*"
+    "au FileType diff syn match DiffCommentIgnore "^###.*"
+    "au FileType diff call g:ApplySyntaxForDiffComments()
+    "au User UniteAshLoaded call AshExperimentalHighlighting()
+"augroup end
+"
+
+"fun! g:ApplySyntaxForDiffComments()
+    "if &background == 'light'
+        "hi DiffCommentIgnore ctermfg=249 ctermbg=none
+        "hi DiffComment ctermfg=16 ctermbg=254
+    "else
+        "hi DiffCommentIgnore ctermfg=249 ctermbg=none
+        "hi DiffComment ctermfg=15 ctermbg=237
+    "endif
+"endfun
+
+
+" NERDTree """"""""""""""""""
+"""""""""""""""""""""""""""""
+let NERDTreeIgnore=['\.pyc$','\~$','__pycache__', '\.zip$', '\.tar$', '\.tar\.gz$']
+let NERDTreeShowLineNumbers = 0
+let NERDTreeMinimalUI=1
+
+" YouCompleteMe """""""""""""
+"""""""""""""""""""""""""""""
+let g:ycm_min_num_identifier_candidate_chars = 1
+let g:ycm_min_num_of_chars_for_completion = 1
+let g:ycm_auto_trigger = 1
+let g:ycm_error_symbol = '✗'
+let g:ycm_warning_symbol = '⚡'
+let g:ycm_key_list_select_completion = ['<C-N>', '<Down>']
+let g:ycm_allow_changing_update_time = 0
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""" Mappings """""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+noremap > >>
+noremap < <<
+
+" vim-over
+"""""""""""""""""""
+"nnoremap H :OverCommandLine<cr>%s/\v
+"vnoremap H :OverCommandLine<cr>s/\v
+
+" tagbar
+""""""""""""""""""
+nmap <F8> :TagbarOpen fjc<CR>
+
+" vim-go
+""""""""""""""""""
+augroup go_confs
+    au!
+    au FileType go setl noexpandtab
+
+    au FileType go nmap <leader>r <Plug>(go-run)
+    au FileType go nmap <leader>b <Plug>(go-build)
+    au FileType go nmap <leader>t <Plug>(go-test)
+    au FileType go nmap <Leader>i <Plug>(go-info)
+    au FileType go nmap gd <Plug>(go-def)
+    au FileType go nmap <Leader>dt <Plug>(go-def-tab)
+    au FileType go nmap <Leader>gml <Plug>(go-metalinter)
+
+    " play.golang.org ft and syntax
+    function! s:playground()
+        set syntax=go ft=go
+    endfunction
+
+    au BufRead *play.golang.org* call s:playground()
+    au BufReadPost *play.golang.org* call s:playground()
+augroup end
+
+let g:go_fmt_command = "goimports"
+"let g:go_build_command = "go-fast-compile"
+let g:go_loclist_height = 10
+let g:go_list_type = "quickfix"
+let g:go_highlight_operators = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_methods = 1
+
+let g:go_metalinter_autosave = 0
+let g:go_metalinter_enabled = ['ineffassign', 'gocyclo', 'goconst', 'goimports', 'gotype', 'lll', 'gofmt', 'misspell', 'vet', 'vetshadow', 'gas']
+let g:go_def_mapping_enabled = 0
+
+" Easy-motion
+""""""""""""""""""""""""
+let g:EasyMotion_do_mapping = 0
+map <Leader> <Plug>(easymotion-prefix)
+let g:EasyMotion_smartcase = 1
+nmap <leader>s <Plug>(easymotion-s2)
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
+nmap <leader>/ <Plug>(easymotion-sn)
+
+"nmap <leader>qqq :bw<CR>
+
+" Fast saving
+nmap <leader>w :w<cr>
+" Show non printable characters
+nmap <leader>llll :set list!<CR>
+" Toggle mouse selection
+nmap <leader>m :call ToggleMouse()<cr>
+
+" Visual mode pressing * or # searches for the current selection
+" Super useful! From an idea by Michael Naumann
+"vnoremap <silent> * :call VisualSelection('f')<CR>
+"vnoremap <silent> # :call VisualSelection('b')<CR>
+"
+" Treat long lines as break lines (useful when moving around in them)
+map j gj
+map k gk
+
+" Disable highlight when <leader><cr> is pressed
+map <silent> <leader><cr> :noh<cr>
+
+" Smart way to move between windows
+nmap <C-j> <C-W>j
+nmap <C-k> <C-W>k
+nmap <C-h> <C-W>h
+nmap <C-l> <C-W>l
+nmap <leader>- <c-w>_
+nmap <leader>= <c-w>=
+
+" Close the current buffer
+map <leader>bd :bd<cr>
+
+" Useful mappings for managing tabs
+nmap <silent> <leader>cd :lcd %:p:h<cr>:pwd<cr>
+nmap T :tabnew
+
+" Remap VIM 0 to first non-blank character
+map 0 ^
+
+map <leader>cc :botright cope<cr>
+map <silent> <leader>] :cn<cr>
+map <silent> <leader>[ :cp<cr>
+
+" Gundo
+"nnoremap <leader>gu :GundoToggle<CR>
+
+
+" Ultisnips
+nmap <leader>ss :UltiSnipsEdit<CR>
+
+" NERDTree
+nnoremap <leader>e :NERDTreeToggle<CR>
+
+" Fugitive mappings
+nnoremap <Leader>gs :Gstatus<cr>
+
+" Tab swtich with c-pgUp & c-pgDown
+nmap    <ESC>[5^    <C-PageUp>
+nmap    <ESC>[6^    <C-PageDown>
+nnoremap  <C-PageDown> :tabn<cr>
+nnoremap  <C-PageUp> :tabp<cr>
+
+" Toggle paste mode on and off
+map <leader>pp :setlocal paste!<cr>
+
+" Remove the Windows ^M - when the encodings gets messed up
+"noremap <Leader>mmm mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
+
+" Toggle relative numbers
+"nnoremap <Leader>n :call NumberToggle()<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""" Functions """"""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Enable mouse in visual, normal and help modes
+function! ToggleMouse()
+ if(g:my_mouse_mode == 0)
+  set mouse=nv
+  let g:my_mouse_mode = 1
+ else
+  set mouse=
+  let g:my_mouse_mode = 0
+ endif
+endfunc
+
+" Auto exec
+function! ModeChange()
+    if getline(1) =~ "^#!"
+        if getline(1) =~ "bin/"
+            silent !chmod a+x <afile>
+        endif
+    endif
+endfunction
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
+                   \ | wincmd p | diffthis
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""" Auto commands """"""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+augroup common_cmds
+    au!
+    "Move quickfix window to very bottom
+    autocmd FileType qf wincmd J
+    " Close nerd tree if it is the only window
+    autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+
+    " Return to last edit position when opening files (You want this!)
+    autocmd BufReadPost *
+                \ if line("'\"") > 0 && line("'\"") <= line("$") |
+                \   exe "normal! g`\"" |
+                \ endif
+
+    " Add execution writes if file starts with #! and contains bin
+    autocmd BufWritePost * call ModeChange()
+augroup end
+
+augroup js_settings
+    au!
+    autocmd FileType javascript setl shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+
+    au FileType javascript nnoremap <silent> <leader>f :!eslint --fix %<cr>
+augroup end
+
+let g:tex_flavor = 'latex'
+let g:tex_fast = ''
+
+let g:vimtex_latexmk_build_dir = 'build'
+let g:vimtex_compiler_method = 'latexmk'
+
+let g:vimtex_view_method = 'mupdf'
+let g:vimtex_view_use_temp_files = 1
+augroup latex_settings
+    au!
+
+    au FileType tex nnoremap <silent> <leader>t :VimtexTocToggle<cr>
+    au FileType tex vnoremap <silent> <leader>c :VimtexCompileSelected<cr>
+    au FileType tex nnoremap <silent> <leader>b :VimtexCompileToggle<cr>
+    au FileType tex nnoremap <silent> <leader>o :VimtexOutput<cr>
+    au FileType tex nnoremap <silent> <leader>E :VimtexErrors<cr>
+augroup end
+
+augroup jade_settings
+    au!
+    autocmd FileType pug setl shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+augroup end

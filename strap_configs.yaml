@@ -1,0 +1,13 @@
+---
+- name: configure vim
+  hosts: all
+  become: false
+  roles:
+    - role: vim
+      tags:
+        - vim
+    - role: zsh
+      tags:
+        - zsh
+...
+# vim: ts=2 sts=1 sw=2

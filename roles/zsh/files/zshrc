@@ -1,0 +1,58 @@
+#
+# Executes commands at the start of an interactive session.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+source "${HOME}/.zgen/zgen.zsh"
+
+# if the init scipt doesn't exist
+if ! zgen saved; then
+  # specify plugins here
+  zgen load prezto
+  zgen load kovetskiy/zsh-fastcd
+
+  # generate the init script from plugins above
+  zgen save
+fi
+
+zgen prezto
+
+# Customize to your needs...
+ 
+unsetopt correct
+unsetopt correct_all
+unsetopt global_rcs
+
+setopt menu_complete
+
+# Customize to your needs...
+# create a zkbd compatible hash;
+# to add other keys to this hash, see: man 5 terminfo
+typeset -A key
+
+key[Home]=^[[7~
+key[End]=^[[8~
+key[Insert]=^[[2~
+key[Delete]=^[[3~
+
+# setup key accordingly
+bindkey  "^[[7~"  beginning-of-line
+bindkey  "^[[8~"  end-of-line
+bindkey  "^[[2~"  overwrite-mode
+bindkey  "^[[3~"  delete-char
+bindkey  "^[Od"   backward-word
+bindkey  "^[Oc"   forward-word
+
+source $HOME/.zsh/aliases.sh
+source $HOME/.zsh/alias.d/docker.sh
+source $HOME/.zsh/alias.d/common.sh
+source $HOME/.zsh/alias.d/git.sh
+source $HOME/.zsh/alias.d/chef.sh
+source $HOME/.zsh/alias.d/systemd.sh
+source $HOME/.zsh/alias.d/grep.sh
+source $HOME/.zsh/alias.d/ssh.sh
+
+stty -ixon
+eval $(thefuck --alias)

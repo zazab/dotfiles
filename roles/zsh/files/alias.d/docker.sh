@@ -1,0 +1,9 @@
+alias di="sudo -E docker image"
+alias dn="sudo -E docker node"
+alias dnet="sudo -E docker network"
+alias dc="sudo -E docker container"
+alias ds="sudo -E docker stack"
+alias dsrv="sudo -E docker service"
+alias doc="sudo -E docker"
+alias dm="docker-machine"
+alias dme='() { eval $(docker-machine env $2 $1) }'

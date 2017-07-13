@@ -1,0 +1,5 @@
+---
+- name: install vim plugins
+  command: vim +PlugInstall
+...
+# vim: ts=2 sts=1 sw=2

@@ -1,0 +1,54 @@
+---
+- name: install zfiles
+  copy: 
+    src: "{{item}}"
+    dest: $HOME/.{{item}}
+  with_items:
+    - zlogin
+    - zlogout
+    - zprofile
+    - zshenv
+    - zshrc
+
+- name: install zprofile
+  template:
+    src: zpreztorc.j2
+    dest: $HOME/.zpreztorc
+ 
+- name: create directories
+  file:
+    path: $HOME/{{item}}
+    state: directory
+  with_items:
+    - .zsh
+    - .zsh/alias.d
+
+- name: copy aliases.sh
+  copy:
+    src: aliases.sh
+    dest: $HOME/.zsh/aliases.sh 
+
+- name: copy alias.d items
+  copy:
+    src: alias.d/{{item}}
+    dest: $HOME/.zsh/alias.d/{{item}}
+    mode: 0644
+    directory_mode: yes
+  with_items:
+    - chef.sh
+    - common.sh
+    - docker.sh
+    - git.sh
+    - grep.sh
+    - ssh.sh
+    - systemd.sh
+
+- name: install zgen
+  git:
+    repo: "https://github.com/tarjoilija/zgen.git"
+    dest: "$HOME/.zgen"
+    clone: yes
+    update: yes
+
+...
+# vim: ts=2 sts=1 sw=2
