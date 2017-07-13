@@ -1,4 +1,4 @@
 ---
-theme: pure
+zsh_prompt_theme: pure
 ...
 # vim: ts=2 sts=1 sw=2
