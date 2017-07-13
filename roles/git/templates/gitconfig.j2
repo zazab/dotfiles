@@ -1,0 +1,46 @@
+[user]
+	name = Evgeny Persienko
+	email = {{git_email}}
+[core]
+	excludesfile = /home/persienko/.gitingnor_global
+	pager = less -F -X
+[color]
+	branch = auto
+	diff = auto
+	status = auto
+[alias]
+	up = !(git add . && git stash && git pull --rebase >&2) | grep -v \"No local changes to save\" && git stash pop
+	in = "!git remote update -p; git log ..@{u}"
+	out = log @{u}..
+	addremove = !git add . && git ls-files --deleted | xargs --no-run-if-empty git rm
+	unstage = reset HEAD --
+	st = status -sb
+	ci = commit
+	co = checkout
+	br = branch
+	bra = branch -a
+	chp = cherry-pick
+	pr = pull --rebase
+	bl = blame -b -w
+	cia = commit --amend
+	ll = !git log --pretty=format:'%h was %an, %ar, message: %s' --graph --decorate --all --oneline
+	lg = !git --no-pager log -n 20 --pretty=format:'%h was %an, %ar, message: %s' --graph --decorate --all --oneline
+	lgg = !git --no-pager log -n 40 --pretty=format:'%h was %an, %ar, message: %s' --graph --decorate --all --oneline
+	lggg = !git --no-pager log -n 100 --pretty=format:'%h was %an, %ar, message: %s' --graph --decorate --all --oneline
+	who = shortlog -s --
+	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+	filelog = log -u
+	fl = log -u
+	diff = diff --word-diff
+	dc = diff --cached
+    pll = pull --ff-only
+[push]
+	default = simple
+[mergetool]
+	prompt = off
+	keepBackup = off
+	keepTemporaries = off
+[merge]
+	tool = meld
+[http "https://gopkg.in"]
+	followRedirects = true

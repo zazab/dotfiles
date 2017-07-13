@@ -1,0 +1,16 @@
+---
+- name: put configs
+  copy:
+    src: "{{item}}"
+    dest: $HOME/.{{item}}
+  with_items:
+    - gitignore_global
+
+- name: compile templates
+  template:
+    src: "{{item}}.j2"
+    dest: $HOME/.{{item}}
+  with_items:
+    - gitconfig
+...
+# vim: ts=2 sts=1 sw=2
