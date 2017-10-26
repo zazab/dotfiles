@@ -249,6 +249,7 @@ syntax enable
 " let g:solarized_termcolors = 256
 " let g:solarized_termtrans = 0
 " colorscheme solarized
+let g:rehash256 = 1
 set background=dark
 colorscheme molokai
 hi Underlined cterm=underline
