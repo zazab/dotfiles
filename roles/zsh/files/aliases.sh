@@ -1,7 +1,7 @@
 # Aliases
 
 alias gocd="fastcd $GOPATH/src/ 3"
-alias ancd="fastcd $HOME/dev/ansible 1"
+alias ancd="fastcd $HOME/dev/ansible 2"
 alias docd="fastcd $HOME/dev/docker 1"
 
 alias bur="bithookctl -p post -A uroboros uroboros"
