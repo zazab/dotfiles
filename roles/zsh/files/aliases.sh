@@ -18,7 +18,6 @@ alias orgl='() {
 
 
 alias ssh="TERM=xterm && ssh"
-alias vim="vim --servername Vim"
 
 # amfrex
 alias amfrex-prod="amfrex -d _deployerd._tcp.s -h _heaverd-clusterd._tcp.production.s"
