@@ -1,8 +1,8 @@
 # Aliases
 
 alias gocd="fastcd $GOPATH/src/ 3"
-alias vicd="fastcd $HOME/.vim/bundle 1"
-alias decd="fastcd $HOME/dev/ 1"
+alias ancd="fastcd $HOME/dev/ansible 1"
+alias docd="fastcd $HOME/dev/docker 1"
 
 alias bur="bithookctl -p post -A uroboros uroboros"
 alias urb='() { curl -d url=$1 uroboro.s/api/v1/tasks/ }'

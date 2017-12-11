@@ -42,6 +42,7 @@
     - grep.sh
     - ssh.sh
     - systemd.sh
+    - ansible.sh
 
 - name: install zgen
   git:
