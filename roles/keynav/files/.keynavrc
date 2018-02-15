@@ -1,0 +1,45 @@
+clear
+
+ctrl+semicolon start,grid 3x3,cursorzoom 400 400
+semicolon cursorzoom 400 400
+super+semicolon start,grid 3x3
+
+h move-left, warp
+j move-down, warp
+k move-up, warp
+l move-right, warp
+
+shift+g cell-select 1x1, warp
+shift+c cell-select 2x1, warp
+shift+r cell-select 3x1, warp
+
+shift+h cell-select 1x2, warp
+shift+t cell-select 2x2, warp
+shift+n cell-select 3x2, warp
+
+shift+m cell-select 1x3, warp
+shift+w cell-select 2x3, warp
+shift+v cell-select 3x3, warp
+
+shift+j cut-left, warp
+shift+k cut-down, warp
+
+ctrl+w windowzoom, warp
+ctrl+b grid-nav on
+
+BackSpace history-back
+ctrl+BackSpace cursorzoom 100 100
+
+grave grid 1x1, cursorzoom 10 10
+o grid 1x1, cursorzoom 10 10, cilck 1
+
+b warp, click 5
+m warp, click 4
+
+space warp,click 1
+shift+space warp,click 2
+ctrl+minus warp,click 3
+ctrl+space drag 1
+
+Return end
+Escape end

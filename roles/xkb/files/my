@@ -1,0 +1,24 @@
+xkb_keymap {
+        xkb_keycodes  { 
+            include "evdev"
+            include "dvorak(dvp)"
+        };
+        xkb_types     { include "complete"      };
+        xkb_compat    { 
+            include "complete"     
+            include "hjkl"
+        };
+        xkb_geometry  { include "pc(pc105)"     };
+        xkb_symbols   { 
+            include "pc"
+            include "us(dvp)"
+            include "ru:2"
+            include "inet(evdev)"
+            include "level3(ralt_switch)"
+            include "level5(rctrl_switch)"
+            include "hjkl(hjkl-dvp)"    
+            include "hjkl(caret-dvp-left)"    
+            include "altwin(swap_lalt_lwin)"
+            include "capslock(swapescape)"
+        };
+};

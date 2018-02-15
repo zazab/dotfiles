@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export GOPATH="$HOME/dev/goroot"
+export GOSRC="$HOME/dev/goroot/src"
+export GO15VENDOREXPERIMENT=1
+
+export PATH="/home/persienko/bin:$GOPATH/bin":$PATH
+export EDITOR=vim
+export TERMINAL=urxvt
+export TERM=screen-256color
+export MC_SKIN="$HOME/.mc/solarized.ini"
+
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
+export FZF_DEFAULT_COMMAND='ag -l -g ""'
+export FZF_DEFAULT_OPTS="--tiebreak=begin,length,index --color=dark --reverse"
+
