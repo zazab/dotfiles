@@ -2,7 +2,7 @@
 - name: setup vimrc
   copy:
     src: vimrc
-    dest: $HOME/.vimrc
+    dest: "{{lookup('env', 'HOME')}}/.vimrc"
   notify:
     - install vim plugins
 ...
