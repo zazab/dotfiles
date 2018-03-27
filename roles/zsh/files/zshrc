@@ -45,7 +45,7 @@ bindkey  "^[[3~"  delete-char
 bindkey  "^[Od"   backward-word
 bindkey  "^[Oc"   forward-word
 
-source $HOME/.profilerc
+#source $HOME/.profilerc
 source $HOME/.zsh/aliases.sh
 source $HOME/.zsh/alias.d/docker.sh
 source $HOME/.zsh/alias.d/common.sh
@@ -56,6 +56,6 @@ source $HOME/.zsh/alias.d/grep.sh
 source $HOME/.zsh/alias.d/ssh.sh
 source $HOME/.zsh/alias.d/ansible.sh
 
-source /usr/share/fzf/key-bindings.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 stty -ixon
