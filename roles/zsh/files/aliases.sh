@@ -9,6 +9,15 @@ alias urb='() { curl -d url=$1 uroboro.s/api/v1/tasks/ }'
 
 alias gml="gometalinter --deadline 10s --config $HOME/.config/gometalinter.json ./..."
 
+alias j="jobs"
+
+function vimtemp() {
+    tmpfile=`mktemp vimtmp-XXXXX`
+    touch $tmpfile
+    vim $tmpfile
+}
+alias vim-temp="vimtemp"
+
 alias orgl='() { 
     project=$1
     group=$2
