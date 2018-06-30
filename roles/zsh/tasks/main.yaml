@@ -1,12 +1,8 @@
 ---
-- name: debug | debug var
-  set_fact:
-    homepath: "{{lookup('env', 'HOME')}}"
-
 - name: install zfiles
   copy: 
     src: "{{item}}"
-    dest: "{{homepath}}/.{{item}}"
+    dest: "{{ansible_user_dir}}/.{{item}}"
   with_items:
     - zlogin
     - zlogout
@@ -17,11 +13,11 @@
 - name: install zprofile
   template:
     src: zpreztorc.j2
-    dest: "{{homepath}}/.zpreztorc"
+    dest: "{{ansible_user_dir}}/.zpreztorc"
  
 - name: create directories
   file:
-    path: "{{homepath}}/{{item}}"
+    path: "{{ansible_user_dir}}/{{item}}"
     state: directory
   with_items:
     - .zsh
@@ -30,12 +26,12 @@
 - name: copy aliases.sh
   copy:
     src: aliases.sh
-    dest: "{{homepath}}/.zsh/aliases.sh"
+    dest: "{{ansible_user_dir}}/.zsh/aliases.sh"
 
 - name: copy alias.d items
   copy:
     src: alias.d/{{item}}
-    dest: "{{homepath}}/.zsh/alias.d/{{item}}"
+    dest: "{{ansible_user_dir}}/.zsh/alias.d/{{item}}"
     mode: 0644
     directory_mode: yes
   with_items:
@@ -51,7 +47,7 @@
 - name: install zgen
   git:
     repo: "https://github.com/tarjoilija/zgen.git"
-    dest: "{{homepath}}/.zgen"
+    dest: "{{ansible_user_dir}}/.zgen"
     clone: yes
     update: yes
 
