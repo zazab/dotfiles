@@ -12,7 +12,7 @@ alias gml="gometalinter --deadline 10s --config $HOME/.config/gometalinter.json 
 alias j="jobs"
 
 function vimtemp() {
-    tmpfile=`mktemp vimtmp-XXXXX`
+    tmpfile=`mktemp -t vimtmp-XXXXX`
     touch $tmpfile
     vim $tmpfile
 }

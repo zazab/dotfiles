@@ -17,7 +17,8 @@ fi
 # Terminal
 #
 
-export TERMINAL=urxvt
+#export TERMINAL=urxvt
+export TERMINAL=termite
 export TERM=screen-256color
 export MC_SKIN="$HOME/.mc/solarized.ini"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
@@ -96,3 +97,5 @@ fi
 if [[ ! -d "${TMPDIR}" ]]; then
   mkdir -m 700 "${TMPDIR}"
 fi
+
+export PATH="$HOME/.cargo/bin:$PATH"
