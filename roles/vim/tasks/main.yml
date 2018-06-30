@@ -1,8 +1,8 @@
 ---
 - name: setup vimrc
-  copy:
-    src: vimrc
-    dest: "/root/.vimrc"
+  template:
+    src: vimrc.j2
+    dest: "{{ansible_user_dir}}/.vimrc"
   notify:
     - install vim plugins
 ...
