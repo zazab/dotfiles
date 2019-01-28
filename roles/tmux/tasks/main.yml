@@ -1,0 +1,7 @@
+---
+- name: setup tmux.conf
+  file:
+    src: tmux.conf
+    dest: "{{ansible_user_dir}}/.tmux.conf"
+...
+# vim: ts=2 sts=2 sw=2
