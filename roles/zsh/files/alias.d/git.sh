@@ -15,6 +15,6 @@ alias glb='() {
     git log --oneline --graph --decorate $start..HEAD
 }'
 alias gla="git log --oneline --graph --decorate --all"
-alias gls="git log --graph --pretty=\"format:%C(auto)[%G?] %h%d %f\""
+alias gls="git log --graph --pretty=\"format:%C(auto)[%G?] %h%d %s\""
 alias gs="git status -sb"
 #alias gco="git checkout"

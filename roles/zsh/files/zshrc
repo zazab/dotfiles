@@ -6,12 +6,12 @@
 #
 
 source "${HOME}/.zgen/zgen.zsh"
-
 # if the init scipt doesn't exist
 if ! zgen saved; then
   # specify plugins here
   zgen load prezto
   zgen load kovetskiy/zsh-fastcd
+  zgen load $HOME/.zfunc
 
   # generate the init script from plugins above
   zgen save
@@ -27,23 +27,24 @@ unsetopt global_rcs
 
 setopt menu_complete
 
+
 # Customize to your needs...
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
-typeset -A key
+#typeset -A key
 
-key[Home]=^[[7~
-key[End]=^[[8~
-key[Insert]=^[[2~
-key[Delete]=^[[3~
+#key[Home]=^[[7~
+#key[End]=^[[8~
+#key[Insert]=^[[2~
+#key[Delete]=^[[3~
 
 # setup key accordingly
-bindkey  "^[[7~"  beginning-of-line
-bindkey  "^[[8~"  end-of-line
-bindkey  "^[[2~"  overwrite-mode
-bindkey  "^[[3~"  delete-char
-bindkey  "^[Od"   backward-word
-bindkey  "^[Oc"   forward-word
+#bindkey  "^[[7~"  beginning-of-line
+#bindkey  "^[[8~"  end-of-line
+#bindkey  "^[[2~"  overwrite-mode
+#bindkey  "^[[3~"  delete-char
+#bindkey  "^[Od"   backward-word
+#bindkey  "^[Oc"   forward-word
 
 #source $HOME/.profilerc
 source $HOME/.zsh/aliases.sh
