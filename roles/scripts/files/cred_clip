@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+$HOME/bin/cred_extract $@ | xclip
+
+echo copied $2 from $1 to clipboard

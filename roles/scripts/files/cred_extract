@@ -1,0 +1,6 @@
+#!/bin/bash
+
+project=$1
+query=$2
+
+gpg 2>/dev/null -d $HOME/.creds/${project}.gpg | jq -r "$query" 2>/dev/null

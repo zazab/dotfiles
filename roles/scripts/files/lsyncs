@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ls -1 $HOME/.config/lsyncd.d/ | sed "s/.lua$//"

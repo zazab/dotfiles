@@ -1,0 +1,5 @@
+#!/bin/bash
+
+project=$1
+
+cryptoedit $HOME/.creds/${project}.gpg

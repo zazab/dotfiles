@@ -1,0 +1,9 @@
+#!/bin/bash
+
+lsyncs=`ls -1 /tmp/lsyncd-*.status`
+
+for lsync in $lsyncs ; do
+    name=`echo $lsync | sed 's/^.*lsyncd-//; s/.status$//'`
+    echo $name
+    head -n 4 $lsync
+done

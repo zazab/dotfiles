@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cfg=$1
+
+lsyncd $HOME/.config/lsyncd.d/${cfg}.lua
