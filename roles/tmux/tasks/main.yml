@@ -1,6 +1,6 @@
 ---
 - name: setup tmux.conf
-  file:
+  copy:
     src: tmux.conf
     dest: "{{ansible_user_dir}}/.tmux.conf"
 ...

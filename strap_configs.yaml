@@ -12,5 +12,8 @@
     - role: git
       tags:
         - git
+    - role: tmux
+      tags:
+        - tmux
 ...
 # vim: ts=2 sts=1 sw=2
