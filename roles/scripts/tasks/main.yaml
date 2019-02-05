@@ -1,0 +1,20 @@
+---
+- name: create scripts dir
+  file:
+    path: "{{ansible_user_dir}}/bin"
+    state: directory
+    mode: 0750
+
+- name: copy scripts
+  copy:
+    src: ¨{{item}}"
+    dest: "{{ansible_user_dir}}/bin/{{item}}"
+    mode: 0750
+  with_items:
+    - cred_clip
+    - cred_edit
+    - cred_extract
+    - lsync
+    - lsyncs
+    - lsyncs_status
+...
