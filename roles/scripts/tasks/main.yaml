@@ -7,7 +7,7 @@
 
 - name: copy scripts
   copy:
-    src: ¨{{item}}"
+    src: "{{item}}"
     dest: "{{ansible_user_dir}}/bin/{{item}}"
     mode: 0750
   with_items:
