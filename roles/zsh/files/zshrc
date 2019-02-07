@@ -10,7 +10,7 @@ source "${HOME}/.zgen/zgen.zsh"
 if ! zgen saved; then
   # specify plugins here
   zgen load prezto
-  zgen load kovetskiy/zsh-fastcd
+  zgen load zazab/zsh-fastcd
   zgen load $HOME/.zfunc
 
   # generate the init script from plugins above
@@ -27,36 +27,15 @@ unsetopt global_rcs
 
 setopt menu_complete
 
+for f in ~/.zsh/alias.d/*.sh; do
+    source $f
+done
 
-# Customize to your needs...
-# create a zkbd compatible hash;
-# to add other keys to this hash, see: man 5 terminfo
-#typeset -A key
-
-#key[Home]=^[[7~
-#key[End]=^[[8~
-#key[Insert]=^[[2~
-#key[Delete]=^[[3~
-
-# setup key accordingly
-#bindkey  "^[[7~"  beginning-of-line
-#bindkey  "^[[8~"  end-of-line
-#bindkey  "^[[2~"  overwrite-mode
-#bindkey  "^[[3~"  delete-char
-#bindkey  "^[Od"   backward-word
-#bindkey  "^[Oc"   forward-word
-
-#source $HOME/.profilerc
-source $HOME/.zsh/aliases.sh
-source $HOME/.zsh/alias.d/docker.sh
-source $HOME/.zsh/alias.d/common.sh
-source $HOME/.zsh/alias.d/git.sh
-source $HOME/.zsh/alias.d/chef.sh
-source $HOME/.zsh/alias.d/systemd.sh
-source $HOME/.zsh/alias.d/grep.sh
-source $HOME/.zsh/alias.d/ssh.sh
-source $HOME/.zsh/alias.d/ansible.sh
+for f in ~/.zsh/custom.d/*.sh; do
+    source $f
+done
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.iterm2_shell_integration ] && source ~/.iterm2_shell_integration.zsh
 
 stty -ixon

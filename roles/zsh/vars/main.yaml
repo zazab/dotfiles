@@ -1,4 +1,6 @@
 ---
 zsh_prompt_theme: pure
+custom_items: []
+codehome: "$HOME/code"
 ...
 # vim: ts=2 sts=1 sw=2

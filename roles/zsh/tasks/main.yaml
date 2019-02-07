@@ -24,26 +24,32 @@
     - .zsh/alias.d
     - .zfunc
 
-- name: copy aliases.sh
+- name: copy custom configs
   copy:
-    src: aliases.sh
-    dest: "{{ansible_user_dir}}/.zsh/aliases.sh"
-
-- name: copy alias.d items
-  copy:
-    src: alias.d/{{item}}
-    dest: "{{ansible_user_dir}}/.zsh/alias.d/{{item}}"
+    src: "{{item}}"
+    dest: "{{ansible_user_dir}}/.zsh/custom.d/{{item | basename}}"
     mode: 0644
     directory_mode: yes
   with_items:
-    - chef.sh
-    - common.sh
-    - docker.sh
-    - git.sh
-    - grep.sh
-    - ssh.sh
-    - systemd.sh
-    - ansible.sh
+    - "{{custom_items}}"
+
+- name: copy alias.d items
+  copy:
+    src: "{{item}}"
+    dest: "{{ansible_user_dir}}/.zsh/alias.d/{{item | basename}}"
+    mode: 0644
+    directory_mode: yes
+  with_items:
+    - alias.d/aliases.sh
+    - alias.d/chef.sh
+    - alias.d/fastcd.sh
+    - alias.d/common.sh
+    - alias.d/docker.sh
+    - alias.d/git.sh
+    - alias.d/grep.sh
+    - alias.d/ssh.sh
+    - alias.d/systemd.sh
+    - alias.d/ansible.sh
 
 - name: install zgen
   git:

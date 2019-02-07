@@ -42,8 +42,8 @@ fi
 # GoLang
 #
 
-export GOPATH="$HOME/dev/goroot"
-export GOSRC="$HOME/dev/goroot/src"
+export GOPATH="$CODEHOME/goroot"
+export GOSRC="$CODEHOME/goroot/src"
 export GO15VENDOREXPERIMENT=1
 
 fpath=(${HOME}/.zsh/completion $fpath)
