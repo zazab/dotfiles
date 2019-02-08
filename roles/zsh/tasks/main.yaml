@@ -6,14 +6,18 @@
   with_items:
     - zlogin
     - zlogout
-    - zprofile
     - zshenv
     - zshrc
 
-- name: install zprofile
+- name: install zpreztorc
   template:
     src: zpreztorc.j2
     dest: "{{ansible_user_dir}}/.zpreztorc"
+
+- name: install zprofile
+  template:
+    src: zprofile.j2
+    dest: "{{ansible_user_dir}}/.zprofile"
  
 - name: create directories
   file:
