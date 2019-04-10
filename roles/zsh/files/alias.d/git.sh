@@ -17,4 +17,5 @@ alias glb='() {
 alias gla="git log --oneline --graph --decorate --all"
 alias gls="git log --graph --pretty=\"format:%C(auto)[%G?] %h%d %s\""
 alias gs="git status -sb"
+alias gignored="git check-ignore -v **/*"
 #alias gco="git checkout"
