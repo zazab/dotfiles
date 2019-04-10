@@ -6,6 +6,19 @@
   with_items:
     - gitignore_global
 
+- name: create githooks dir
+  file:
+    path: $HOME/.githooks
+    state: directory
+    mode: 0755
+
+- name: put githooks
+  copy:
+    src: "githooks/{{item}}"
+    dest: "$HOME/.githooks/{{item}}"
+  with_items:
+    - prepare-commit-msg
+
 - name: compile templates
   template:
     src: "{{item}}.j2"

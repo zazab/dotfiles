@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# skip merge commits
+if grep -i "merge" "$1"; then 
+    exit 0
+fi
+
+jira_issue_regex="^[A-Z]+-[0-9]+"
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+current_issue="$(echo ${current_branch} | grep ${jira_issue_regex} -Eo)"
+
+issue_in_message="$(grep ${jira_issue_regex} ${1} -Eo)"
+
+if [[ -z "$current_issue" ]]; then
+    echo "Don't know current issue"
+    exit 0
+fi
+
+if [[ -z "$issue_in_message" ]]; then
+    echo "Adding issue to commit message"
+    echo "$current_issue $(cat ${1})" > ${1}
+    exit 0
+fi
+
+if [[ "$current_issue" == "$issue_in_message" ]]; then
+    exit 0
+else
+    echo "Cancel commit, Wrong issue in commit message. Branch issue is" \
+        "${current_issue}, issue in commit is ${issue_in_message}"
+    exit 1
+fi
