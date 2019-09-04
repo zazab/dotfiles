@@ -13,11 +13,12 @@ alias dsrv="docker service"
 alias doc="docker"
 
 alias dm="docker-machine"
-alias dme='() { eval $(docker-machine env $2 $1) }'
+dme() {
+  eval $(docker-machine env $2 $1)
+}
 
 alias -g Jd='| docjq'
-alias docjq='() { 
+docjq() {
     sub=$1
     jq ".[]${sub}"
-}'
-
+}

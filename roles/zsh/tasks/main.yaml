@@ -1,7 +1,7 @@
 ---
 - name: install zfiles
   copy: 
-    src: "{{item}}"
+    src: "zfiles/{{item}}"
     dest: "{{ansible_user_dir}}/.{{item}}"
   with_items:
     - zlogin
@@ -9,16 +9,14 @@
     - zshenv
     - zshrc
 
-- name: install zpreztorc
+- name: install templates
   template:
-    src: zpreztorc.j2
-    dest: "{{ansible_user_dir}}/.zpreztorc"
+    src: "{{item}}.j2"
+    dest: "{{ansible_user_dir}}/.{{item}}"
+  with_items:
+    - zpreztorc
+    - zprofile
 
-- name: install zprofile
-  template:
-    src: zprofile.j2
-    dest: "{{ansible_user_dir}}/.zprofile"
- 
 - name: create directories
   file:
     path: "{{ansible_user_dir}}/{{item}}"
@@ -26,6 +24,8 @@
   with_items:
     - .zsh
     - .zsh/alias.d
+    - .zsh/custom.d
+    - .zsh/profile.d
     - .zfunc
 
 - name: copy custom configs
@@ -37,23 +37,31 @@
   with_items:
     - "{{custom_items}}"
 
-- name: copy alias.d items
+- name: copy .d items
   copy:
-    src: "{{item}}"
-    dest: "{{ansible_user_dir}}/.zsh/alias.d/{{item | basename}}"
+    src: "{{item}}.zsh"
+    dest: "{{ansible_user_dir}}/.zsh/{{item}}.zsh"
     mode: 0644
     directory_mode: yes
   with_items:
-    - alias.d/aliases.sh
-    - alias.d/chef.sh
-    - alias.d/fastcd.sh
-    - alias.d/common.sh
-    - alias.d/docker.sh
-    - alias.d/git.sh
-    - alias.d/grep.sh
-    - alias.d/ssh.sh
-    - alias.d/systemd.sh
-    - alias.d/ansible.sh
+    - alias.d/aliases
+    - alias.d/ansible
+    - alias.d/common
+    - alias.d/docker
+    - alias.d/fzfcd
+    - alias.d/git
+    - alias.d/global
+    - alias.d/grep
+    - alias.d/k8s
+    - alias.d/avito-tool
+    - profile.d/fzf
+    - profile.d/twine
+    - profile.d/virtualenv_wrapper
+    - zshrc.d/alias_expand
+    - zshrc.d/fzf
+    - zshrc.d/iterm
+    - zshrc.d/k8s
+    - zshrc.d/p10k
 
 - name: install zgen
   git:

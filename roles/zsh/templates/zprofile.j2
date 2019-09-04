@@ -8,7 +8,6 @@
 #
 # Browser
 #
-
 if [[ "$OSTYPE" == darwin* ]]; then
   export BROWSER='open'
 fi
@@ -16,37 +15,30 @@ fi
 #
 # Terminal
 #
-
-#export TERMINAL=urxvt
-export TERMINAL=termite
 export TERM=screen-256color
-export MC_SKIN="$HOME/.mc/solarized.ini"
-#export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 #
 # Editors
 #
-
 export EDITOR=vim
 export PAGER='less'
 
 #
 # Language
 #
-
 if [[ -z "$LANG" ]]; then
   export LANG='en_US.UTF-8'
 fi
 
 #
-# GoLang
+# CODE
 #
 
 export GOPATH="{{codehome}}/goroot"
 export GOSRC="{{codehome}}/goroot/src"
 export GO15VENDOREXPERIMENT=1
+export CODEHOME={{codehome}}
 
-fpath=(${HOME}/.zsh/completion $fpath)
 
 #
 # Paths
@@ -55,26 +47,15 @@ fpath=(${HOME}/.zsh/completion $fpath)
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
-# Set the the list of directories that cd searches.
-# cdpath=(
-#   $cdpath
-# )
+fpath=(${HOME}/.zsh/completion $fpath)
 
 # Set the list of directories that Zsh searches for programs.
 path=(
   $HOME/bin
   $GOPATH/bin
+  $HOME/Library/Python/3.7/bin
   $path
 )
-
-if [ -n "$DESKTOP_SESSION" ]; then
-    eval $(gnome-keyring-daemon --start)
-    #export SSH_AUTH_SOCK
-fi
-
-#
-# Less
-#
 
 # Set the default Less options.
 # Mouse-wheel scrolling has been disabled by -X (disable screen clearing).
@@ -100,4 +81,10 @@ if [[ ! -d "${TMPDIR}" ]]; then
   mkdir -m 700 "${TMPDIR}"
 fi
 
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
+# vi mode fast switch
+export KEYTIMEOUT=1
+
+for f in ~/.zsh/profile.d/*.zsh; do
+    source $f
+done
+

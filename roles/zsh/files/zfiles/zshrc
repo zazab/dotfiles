@@ -10,8 +10,6 @@ source "${HOME}/.zgen/zgen.zsh"
 if ! zgen saved; then
   # specify plugins here
   zgen load prezto
-  zgen load zazab/zsh-fastcd
-  zgen load $HOME/.zfunc
 
   # generate the init script from plugins above
   zgen save
@@ -20,22 +18,23 @@ fi
 zgen prezto
 
 # Customize to your needs...
- 
 unsetopt correct
 unsetopt correct_all
 unsetopt global_rcs
 
 setopt menu_complete
+setopt AUTO_PUSHD
 
-for f in ~/.zsh/alias.d/*.sh; do
+for f in ~/.zsh/alias.d/*.zsh; do
     source $f
 done
 
-for f in ~/.zsh/custom.d/*.sh; do
+for f in ~/.zsh/zshrc.d/*.zsh; do
     source $f
 done
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f ~/.iterm2_shell_integration ] && source ~/.iterm2_shell_integration.zsh
+for f in ~/.zsh/custom.d/*.zsh; do
+    source $f
+done
 
 stty -ixon

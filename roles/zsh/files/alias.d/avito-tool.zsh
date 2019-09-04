@@ -1,0 +1,6 @@
+alias av="avito"
+alias as="avito service"
+alias sdev="avito service dev"
+alias sdeploy="avito service deploy"
+alias spush="avito service push"
+alias sdebug="avito service debug"

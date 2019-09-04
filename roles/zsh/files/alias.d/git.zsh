@@ -9,13 +9,13 @@ alias gcl="git clone"
 alias ga="git add"
 alias gi="git add -pi"
 alias gl="git log --oneline --graph --decorate"
-alias glb='() {
+glb() {
     base=${1:-master}
     start=$(git 2>/dev/null merge-base --fork-point $base || echo $base)
     git log --oneline --graph --decorate $start..HEAD
-}'
+}
 alias gla="git log --oneline --graph --decorate --all"
 alias gls="git log --graph --pretty=\"format:%C(auto)[%G?] %h%d %s\""
 alias gs="git status -sb"
-alias gignored="git check-ignore -v **/*"
-#alias gco="git checkout"
+#alias gignored="git check-ignore -v **/*"
+alias gco="git checkout"

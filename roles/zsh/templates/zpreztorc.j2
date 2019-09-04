@@ -1,4 +1,3 @@
-zstyle ':prezto:*:*' case-sensitive 'yes'
 
 SSH_AUTH_SOCK="/run/user/1000/gnupg/S.gpg-agent.ssh"
 
@@ -8,14 +7,17 @@ zstyle ':prezto:*:*' color 'yes'
 
 zstyle ':prezto:load' pmodule \
     'environment' \
-    'terminal' \
     'editor' \
+    'spectrum' \
     'history' \
     'directory' \
-    'spectrum' \
+    'fasd' \
     'utility' \
     'completion' \
     'prompt' \
+    'homebrew' \
+    'osx' \
+    'python' \
     'ssh' \
     'history-substring-search' \
     'git' \
@@ -24,4 +26,4 @@ zstyle ':prezto:load' pmodule \
 zstyle ':prezto:module:editor' key-bindings 'vi'
 zstyle ':prezto:module:prompt' theme '{{zsh_prompt_theme}}'
 
-CODEHOME={{codehome}}
+# vim: ft=zsh
