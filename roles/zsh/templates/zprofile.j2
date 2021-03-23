@@ -39,7 +39,6 @@ export GOSRC="{{codehome}}/goroot/src"
 export GO15VENDOREXPERIMENT=1
 export CODEHOME={{codehome}}
 
-
 #
 # Paths
 #
@@ -47,13 +46,14 @@ export CODEHOME={{codehome}}
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
-fpath=(${HOME}/.zsh/completion $fpath)
+fpath=(${HOME}/.zsh/completions.d $fpath)
 
 # Set the list of directories that Zsh searches for programs.
 path=(
   $HOME/bin
   $GOPATH/bin
   $HOME/Library/Python/3.7/bin
+  $HOME/.krew/bin
   $path
 )
 
@@ -83,8 +83,3 @@ fi
 
 # vi mode fast switch
 export KEYTIMEOUT=1
-
-for f in ~/.zsh/profile.d/*.zsh; do
-    source $f
-done
-

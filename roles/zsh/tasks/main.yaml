@@ -26,12 +26,14 @@
     - .zsh/alias.d
     - .zsh/custom.d
     - .zsh/profile.d
+    - .zsh/completion_generators
+    - .zsh/generated_completions.d
     - .zfunc
 
 - name: copy custom configs
   copy:
-    src: "{{item}}"
-    dest: "{{ansible_user_dir}}/.zsh/custom.d/{{item | basename}}"
+    src: "custom.d/{{item}}.zsh"
+    dest: "{{ansible_user_dir}}/.zsh/custom.d/{{item | basename}}.zsh"
     mode: 0644
     directory_mode: yes
   with_items:
@@ -46,6 +48,7 @@
   with_items:
     - alias.d/aliases
     - alias.d/ansible
+    - alias.d/avito-tool
     - alias.d/common
     - alias.d/docker
     - alias.d/fzfcd
@@ -53,15 +56,30 @@
     - alias.d/global
     - alias.d/grep
     - alias.d/k8s
-    - alias.d/avito-tool
+    - alias.d/k8s_session_config
+    - alias.d/ssh
     - profile.d/fzf
-    - profile.d/twine
-    - profile.d/virtualenv_wrapper
     - zshrc.d/alias_expand
+    - zshrc.d/completion_generator
     - zshrc.d/fzf
+    - zshrc.d/history
     - zshrc.d/iterm
-    - zshrc.d/k8s
+    - zshrc.d/local_kubectl
     - zshrc.d/p10k
+    - zshrc.d/rvm
+
+- name: completion generators
+  copy:
+    dest: "{{ansible_user_dir}}/.zsh/completion_generators/generate_{{item.name}}.zsh"
+    mode: 0744
+    content: "{{item.cmd}}\n"
+  with_items:
+    - name: avito
+      cmd: avito completion zsh
+    - name: iack
+      cmd: iack completion bash
+    - name: kubectl
+      cmd: kubectl completion zsh
 
 - name: install zgen
   git:

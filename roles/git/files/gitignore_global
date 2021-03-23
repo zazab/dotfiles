@@ -36,3 +36,6 @@ Thumbs.db
 /.idea
 /.vscode
 /.helm_tmp
+/*.iml
+
+.python-version

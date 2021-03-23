@@ -8,14 +8,15 @@
 
 - name: create githooks dir
   file:
-    path: $HOME/.githooks
-    state: directory
-    mode: 0755
+    path:     $HOME/.git/template/hooks
+    state:    directory
+    recurse:  true
+    mode:     0755
 
 - name: put githooks
   copy:
-    src: "githooks/{{item}}"
-    dest: "$HOME/.githooks/{{item}}"
+    src: "templates/hooks/{{item}}"
+    dest: "$HOME/.git/template/hooks/{{item}}"
   with_items:
     - prepare-commit-msg
 
