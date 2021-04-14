@@ -53,12 +53,12 @@
    cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
    trustExitCode = true
 [commit]
-   template = /Users/evpersienko/.stCommitMsg
+   template = {{home}}/.stCommitMsg
 [prompt]
    showinfo = false
 [init]
-   templateDir = /Users/evpersienko/.git/templates
+   templateDir = {{home}}/.git/template
 [pull]
    rebase = true
 [secrets]
-   providers = gpg -d /Users/evpersienko/.config/secrets.gpg
+   providers = gpg -d {{home}}/.config/secrets.gpg

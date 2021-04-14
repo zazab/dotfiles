@@ -1,9 +1,18 @@
+generator_path="$HOME/.zsh/completion_generators"
+generated_path="$HOME/.zsh/generated_completions.d"
+
 function refreshCompletions() {
-  generator_path=~/.zsh/completion_generators
-  generated_path=~/.zsh/generated_completions.d
   for generator in "$generator_path"/*.zsh; do
-      file=$(basenam)
+      file=$(basename $generator)
       completion_name="${file%.zsh}"
-      $generator > "$generated_path/${completion_name}_completion.zsh"
+      $generator >! "$generated_path/${completion_name}_completion.zsh"
+  done
+
+  loadCompletions
+}
+
+function loadCompletions() {
+  for comp in "$generated_path"/*.zsh; do
+      source "$comp"
   done
 }
