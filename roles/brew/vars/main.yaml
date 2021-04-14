@@ -1,0 +1,16 @@
+---
+common_packages:
+  - zsh
+  - vim
+  - tree
+  - fzf
+  - fd
+  - sift
+  - grc
+  - pyenv
+  - pyenv-virtualenv
+  - rvm
+  - go
+  - node
+custom_packages: []
+...

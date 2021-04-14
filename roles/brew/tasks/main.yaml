@@ -1,0 +1,14 @@
+---
+- name: check homebrew
+  shell:
+    cmd: which brew
+
+- name: install packages
+  community.general.homebrew:
+    name: "{{item}}"
+    state: present
+    update_homebrew: yes
+  with_items:
+    - "{{common_packages}}"
+    - "{{custom_packages}}"
+...
