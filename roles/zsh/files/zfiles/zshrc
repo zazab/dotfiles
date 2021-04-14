@@ -34,20 +34,10 @@ unsetopt global_rcs
 setopt menu_complete
 setopt AUTO_PUSHD
 
-for f in ~/.zsh/alias.d/*.zsh; do
-    source $f
-done
-
-for f in ~/.zsh/zshrc.d/*.zsh; do
-    source $f
-done
-
-for f in ~/.zsh/custom.d/*.zsh; do
-    source $f
-done
-
-for f in ~/.zsh/profile.d/*.zsh; do
-    source $f
+for dir in ~/.zsh/*.d; do
+    for f in $dir/*.zsh; do
+        source $f
+    done
 done
 
 # stty -ixon

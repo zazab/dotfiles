@@ -1,0 +1,17 @@
+---
+- name: check fonts installed
+  command: brew list --cask font-hack-nerd-font
+  register: fonts_installed
+
+- name: install fonts
+  community.general.homebrew:
+    name: font-hack-nerd-font
+    state: installed
+    install_options: cask
+  when: fonts_installed.rc != 0
+
+- name: install zsh-autosuggests
+  community.general.homebrew:
+    name: zsh-autosuggestions
+    state: installed
+...
