@@ -39,3 +39,7 @@ Thumbs.db
 /*.iml
 
 .python-version
+.ruby-version
+.ruby-gemset
+
+.vault-token

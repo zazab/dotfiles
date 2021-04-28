@@ -9,8 +9,9 @@ common_packages:
   - grc
   - pyenv
   - pyenv-virtualenv
-  - rvm
   - go
   - node
+  - gnupg
+  - gnupg2
 custom_packages: []
 ...
