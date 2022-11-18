@@ -1,3 +1,4 @@
 ---
-packages_path: /usr/local/Cellar
+packages_path: "/opt/homebrew/Cellar"
+packages_bin: "/opt/homebrew/bin"
 ...

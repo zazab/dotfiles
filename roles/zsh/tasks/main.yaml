@@ -25,10 +25,17 @@
     - .zsh
     - .zsh/alias.d
     - .zsh/custom.d
+    - .zsh/zshrc.d
     - .zsh/profile.d
     - .zsh/completion_generators
     - .zsh/generated_completions.d
     - .zfunc
+
+- name: include os specific vars
+  include_vars: "{{ansible_os_family}}.yaml"
+
+- name: install dependencies
+  include_tasks: "install_deps_{{ ansible_os_family }}.yaml"
 
 - name: copy custom configs
   copy:
@@ -49,7 +56,7 @@
     - alias.d/aliases
     - alias.d/ansible
     - alias.d/avito-tool
-    - alias.d/common
+    # - alias.d/common
     - alias.d/docker
     - alias.d/fzfcd
     - alias.d/git
@@ -64,9 +71,18 @@
     - zshrc.d/completion_generator
     - zshrc.d/history
     - zshrc.d/iterm
-#    - zshrc.d/local_kubectl
+    # - zshrc.d/local_kubectl
     - zshrc.d/p10k
     - zshrc.d/rvm
+
+- name: templated .d items
+  template:
+    src: "{{item}}.j2"
+    dest: "{{ansible_user_dir}}/.zsh/{{item}}.zsh"
+    mode: 0644
+    directory_mode: yes
+  with_items:
+    - alias.d/common
 
 - name: completion generators
   copy:
@@ -88,11 +104,6 @@
     clone: yes
     update: yes
 
-- name: Include OS-specific variables
-  include_vars: "{{ ansible_os_family }}.yaml"
-
-- name: install dependencies
-  include: "install_deps_{{ ansible_os_family }}.yaml"
 
 - name: find fzf script
   command:
