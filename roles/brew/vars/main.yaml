@@ -13,5 +13,13 @@ common_packages:
   - node
   - gnupg
   - gnupg2
-custom_packages: []
+  - gpg
+  - tilt
+  - watch
+  - telnet
+  - tcptraceroute
+custom_packages:
+  - kind
+  - k9s
+  - kustomize
 ...
