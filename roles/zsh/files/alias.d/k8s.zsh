@@ -44,43 +44,72 @@ alias kdsa="kubectl describe sa"
 alias kdi="kubectl describe ing"
 alias kdds="kubectl describe ds"
 
+swap_configs() {
+  context="$1"
+  current_context="$2"
+
+  if [[ "$context" != "minikube" && "$current_context" != "minikube" ]]; then
+    echo "no need to switch configs"
+    # no need to switch
+    return
+  fi
+
+  if [[ "$current_context" == "minikube" ]]; then
+    echo "saving \$HOME/.kube/config to \$HOME/.kube/config.minikube"
+    mv "$HOME/.kube/config" "$HOME/.kube/config.minikube"
+  else
+    echo "saving \$HOME/.kube/config to \$HOME/.kube/config.avito"
+    mv "$HOME/.kube/config" "$HOME/.kube/config.avito"
+  fi
+
+  if [[ "$context" == "minikube" ]]; then
+    echo "copying \$HOME/.kube/config.minikube to \$HOME/.kube/config"
+    mv "$HOME/.kube/config.minikube" "$HOME/.kube/config"
+  else
+    echo "copying \$HOME/.kube/config.avito to \$HOME/.kube/config"
+    mv "$HOME/.kube/config.avito" "$HOME/.kube/config"
+  fi
+}
+
 kube_set_context() {
-    context="$1"
+  context="$1"
+  current_context=$(kubectl config current-context)
 
-    rm -f "$HOME/.kube/config"
-    if [[ "$context" == "minikube" ]]; then
-        cp "$HOME/.kube/config.minikube" "$HOME/.kube/config"
-    else
-        cp "$HOME/.kube/config.avito" "$HOME/.kube/config"
-    fi
+  if [[ "$context" == "$current_context" ]]; then
+    echo "no need to switch context"
+    # same context, no need to do anything
+    return
+  fi
 
-    kubectl config use-context $context
-    #avito kubectl use-context $context
+  swap_configs "$context" "$current_context"
+
+  kubectl config use-context $context
+  #avito kubectl use-context $context
 }
 alias ksc="kube_set_context"
 
 kube_sync_config() {
-    set -x
-    rm -f "$HOME/.kube/config"
-    cp "$HOME/.kube/config.avito" "$HOME/.kube/config"
-    avito kubectl sync-config
-    rm -f "$HOME/.kube/config.avito"
-    cp "$HOME/.kube/config" "$HOME/.kube/config.avito"
-    set +x
+  set -x
+  rm -f "$HOME/.kube/config"
+  cp "$HOME/.kube/config.avito" "$HOME/.kube/config"
+  avito kubectl sync-config
+  rm -f "$HOME/.kube/config.avito"
+  cp "$HOME/.kube/config" "$HOME/.kube/config.avito"
+  set +x
 }
 alias ksync="kube_sync_config"
 
 #alias ksc="avito kubectl use-context"
 
 kube_set_namespace() {
-    kubectl get namespace $1 > /dev/null;
-    if [ $? -eq 1 ]; then
-        return $?
-    fi
+  kubectl get namespace $1 >/dev/null
+  if [ $? -eq 1 ]; then
+    return $?
+  fi
 
-    kubectl config set-context $(k config current-context) --namespace=$1
-    echo "Namespace: $1"
-    return 0
+  kubectl config set-context "$(k config current-context)" --namespace="$1"
+  echo "Namespace: $1"
+  return 0
 }
 
 alias ksn="kube_set_namespace"
@@ -96,4 +125,3 @@ alias -g CB="--context beta"
 alias -g KCB="--kube-context beta"
 alias -g CT="--context theta"
 alias -g ANS="--all-namespaces"
-

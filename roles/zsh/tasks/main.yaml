@@ -1,4 +1,7 @@
 ---
+- name: include os specific vars
+  include_vars: "{{ansible_os_family}}.yaml"
+
 - name: install zfiles
   copy: 
     src: "zfiles/{{item}}"
@@ -30,9 +33,6 @@
     - .zsh/completion_generators
     - .zsh/generated_completions.d
     - .zfunc
-
-- name: include os specific vars
-  include_vars: "{{ansible_os_family}}.yaml"
 
 - name: install dependencies
   include_tasks: "install_deps_{{ ansible_os_family }}.yaml"
@@ -82,7 +82,7 @@
     mode: 0644
     directory_mode: yes
   with_items:
-    - alias.d/common
+    - zshrc.d/fzf
 
 - name: completion generators
   copy:
@@ -104,17 +104,6 @@
     clone: yes
     update: yes
 
-
-- name: find fzf script
-  command:
-    cmd: find {{packages_path}}/fzf -name key-bindings.zsh
-  register: fzf_keybindings_path
-
-- name: symlink fzf
-  file:
-    dest: "{{ansible_user_dir}}/.zsh/zshrc.d/fzf_keybindings.zsh"
-    src: "{{fzf_keybindings_path.stdout}}"
-    state: link
 
 - name: find zsh-autosuggestions script
   command:
