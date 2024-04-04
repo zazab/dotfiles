@@ -1,9 +1,37 @@
 ---
-- name: setup vimrc
-  template:
-    src: vimrc.j2
-    dest: "{{ansible_user_dir}}/.vimrc"
-  notify:
-    - install vim plugins
+- name: create directories
+  file:
+    path: "{{ansible_user_dir}}/{{item}}"
+    state: directory
+  with_items:
+    - .config
+    - .config/nvim
+    - .config/nvim/lua
+    - .config/nvim/lua/plugins
+    - .config/nvim/lua/user
+
+- name: copy lua files
+  copy:
+    src: "{{item}}.lua"
+    dest: "{{ansible_user_dir}}/.config/nvim/{{item}}.lua"
+    mode: 0644
+    directory_mode: yes
+  with_items:
+    - init
+    - lua/user/settings
+    - lua/user/plugins
+    - lua/user/keymaps
+    - lua/plugins/argwrap
+    - lua/plugins/detectindent
+    - lua/plugins/easymotion
+    - lua/plugins/indent_guides
+    - lua/plugins/init
+    - lua/plugins/lualine
+    - lua/plugins/neo-tree
+    - lua/plugins/neogit
+    - lua/plugins/syntastic
+    - lua/plugins/tagbar
+    - lua/plugins/telescope
+    # - lua/plugins/vim-gurl
 ...
 # vim: ts=1 sts=2 sw=2
