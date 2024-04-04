@@ -1,6 +1,10 @@
 # Ls aliases
-alias ll='ls -l'
-alias la='ls -la'
+alias ls='eza -l --icons auto --no-permissions --no-user --no-time'
+alias ll='eza -lb --icons always'
+alias lgr='eza -l --icons always --no-permissions --no-user --no-filesize --git-repos'
+alias lg='eza -l --icons always --no-permissions --no-user --no-filesize --git'
+alias la='eza -lab --icons always'
+alias tre='eza -T --icons always'
 
 alias ping="{{packages_bin}}/grc ping"
 alias traceroute="{{packages_bin}}/grc traceroute"

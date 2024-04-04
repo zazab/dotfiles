@@ -56,22 +56,20 @@
     - alias.d/aliases
     - alias.d/ansible
     - alias.d/avito-tool
-    # - alias.d/common
     - alias.d/docker
     - alias.d/fzfcd
     - alias.d/git
     - alias.d/global
     - alias.d/grep
     - alias.d/k8s
-    - alias.d/k8s_session_config
+    - alias.d/nvim
     - alias.d/ssh
     - profile.d/fzf
+    - profile.d/keybindings
     - profile.d/zsh_autosuggestions
     - zshrc.d/alias_expand
     - zshrc.d/completion_generator
     - zshrc.d/history
-    - zshrc.d/iterm
-    # - zshrc.d/local_kubectl
     - zshrc.d/p10k
     - zshrc.d/rvm
 
@@ -83,6 +81,7 @@
     directory_mode: yes
   with_items:
     - zshrc.d/fzf
+    - alias.d/common
 
 - name: completion generators
   copy:
