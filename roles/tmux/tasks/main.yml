@@ -3,5 +3,22 @@
   copy:
     src: tmux.conf
     dest: "{{ansible_user_dir}}/.tmux.conf"
+
+- name: prepare plugins dir
+  file:
+    path: "{{ansible_user_dir}}/{{item}}"
+    state: directory
+  with_items:
+    - .tmux
+    - .tmux/plugins
+
+- name: pull tpm
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: "{{ansible_user_dir}}/.tmux/plugins/tpm"
+
+- name: install plugins
+  ansible.builtin.shell: "{{ansible_user_dir}}/.tmux/plugins/tpm/bindings/install_plugins"
+
 ...
 # vim: ts=2 sts=2 sw=2
