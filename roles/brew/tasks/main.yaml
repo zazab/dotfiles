@@ -11,4 +11,12 @@
   with_items:
     - "{{common_packages}}"
     - "{{custom_packages}}"
+
+- name: install casks
+  community.general.homebrew_cask:
+    name: "{{item}}"
+    state: present
+    update_homebrew: yes
+  with_items:
+    - "{{casks}}"
 ...

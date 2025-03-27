@@ -1,7 +1,7 @@
 ---
 common_packages:
   - zsh
-  - vim
+  - neovim
   - tree
   - fzf
   - fd
@@ -12,14 +12,24 @@ common_packages:
   - go
   - node
   - gnupg
-  - gnupg2
   - gpg
   - tilt
   - watch
   - telnet
   - tcptraceroute
+  - alacritty # terminal app
+  - eza # ls superpower substitute
+  - jq
+  - yq
+  - miller
 custom_packages:
   - kind
   - k9s
   - kustomize
+casks:
+  - font-fira-mono-nerd-font
+  - font-iosevka
+  - font-meslo-lg-nerd-font
+  - font-hack-nerd-font
+  - font-iosevka-nerd-font
 ...
