@@ -61,7 +61,7 @@
     - alias.d/git
     - alias.d/global
     - alias.d/grep
-    - alias.d/k8s
+    - alias.d/sa_k8s
     - alias.d/nvim
     - alias.d/ssh
     - profile.d/fzf
@@ -72,16 +72,28 @@
     - zshrc.d/history
     - zshrc.d/p10k
     - zshrc.d/rvm
+    - custom.d/_
+    - generated_completions.d/_
 
+- name: copy k8s helpers
+  copy:
+    src: "{{item}}"
+    dest: "{{ansible_user_dir}}/bin/{{item}}"
+    mode: 0644
+    directory_mode: yes
+  with_items:
+    - k8s
+    - sakctl
 - name: templated .d items
   template:
     src: "{{item}}.j2"
     dest: "{{ansible_user_dir}}/.zsh/{{item}}.zsh"
-    mode: 0644
+    mode: 0755
     directory_mode: yes
   with_items:
     - zshrc.d/fzf
     - alias.d/common
+    - alias.d/k8s
 
 - name: completion generators
   copy:

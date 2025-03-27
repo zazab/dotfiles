@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+
+kctl_sa() {
+    plugin=$1
+    shift
+
+    location=("--context" $k8s_context)
+
+    case $plugin in
+      drain-annotate) ;;
+      uncordon-annotate) ;;
+      cordon-annotate) ;;
+      *)
+        if [[ "$k8s_namespace" != "" ]]; then
+          location+=("--namespace" $k8s_namespace)
+        fi
+    esac
+
+    kubectl $plugin $location $@
+}
+
+if [[ $k8s_debug == "ON" ]]; then
+  set -x
+fi
+
+if [[ $k8s_session_aware != "ON" ]]; then
+  kubectl $@
+  exit $?
+fi
+
+kctl_sa $@
+ret=$?
+
+if [[ $k8s_debug == "ON" ]]; then
+  set +x
+fi
+
+exit $ret
+

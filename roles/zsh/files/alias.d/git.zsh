@@ -7,7 +7,7 @@ alias ga="git add"
 alias gi="git add -pi"
 alias gl="git log --oneline --graph --decorate"
 
-unalias glb
+#unalias glb
 function glb {
     base=${1:-master}
     start=$(git 2>/dev/null merge-base --fork-point $base || echo $base)

@@ -2,5 +2,6 @@
 zsh_prompt_theme: powerlevel10k
 custom_items: []
 codehome: "$HOME/code"
+kubectl_bin: "$HOME/bin/sakctl"
 ...
 # vim: ts=2 sts=1 sw=2
