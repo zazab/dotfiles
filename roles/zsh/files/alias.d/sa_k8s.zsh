@@ -1,17 +1,21 @@
-init() {
-  context=$(cat "$HOME/.kube/session_context" 2>/dev/null || echo "zeta")
-  namespace=$(cat "$HOME/.kube/session_namespace" 2>/dev/null || echo "default")
-  export k8s_namespace=$namespace
-  export k8s_context=$context
+k8s_session_init() {
+  local context namespace
+
+  mkdir -p "$HOME/.kube"
+
+  context=$(cat "$HOME/.kube/session_context" 2>/dev/null || echo "${K8S_DEFAULT_CONTEXT:-zeta}")
+  namespace=$(cat "$HOME/.kube/session_namespace" 2>/dev/null || echo "${K8S_DEFAULT_NAMESPACE:-default}")
+  export k8s_namespace="$namespace"
+  export k8s_context="$context"
   export k8s_session_aware=ON
   export k8s_debug=OFF
 }
 
-init
+k8s_session_init
 
 current_context () {
   if [[ $k8s_session_aware == "ON" ]]; then
-    echo $k8s_context
+    echo "$k8s_context"
   else
     kubectl config current-context
   fi
@@ -35,8 +39,10 @@ kenv_session_aware() {
 }
 
 kenv_raw() {
+  local context namespace
+
   context=$(kubectl config current-context)
-  namespace=$(kubectl config view -o json | jq -r ".contexts[] | select(.name == \"$context\") | .context.namespace")
+  namespace=$(kubectl config view -o json | KUBE_CONTEXT="$context" jq -r '.contexts[] | select(.name == env.KUBE_CONTEXT) | .context.namespace')
   echo -e "context: $context\nnamespace: $namespace"
 }
 
@@ -59,22 +65,49 @@ toggle_k8s_debug() {
 alias ktd="toggle_k8s_debug"
 
 kube_set_context_sa() {
-  kubectl config get-contexts $1 1>/dev/null 2>&1
-  if [ $? -ne 0 ]; then
+  kubectl config get-contexts "$1" 1>/dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
     echo "context $1 not found"
     return 1
   fi
 
-  export k8s_context=$1
-  echo $k8s_context >! "$HOME/.kube/session_context"
+  mkdir -p "$HOME/.kube"
+  export k8s_context="$1"
+  echo "$k8s_context" >! "$HOME/.kube/session_context"
+}
+
+k8s_app_contexts_file() {
+  echo "$HOME/.kube/app_contexts.json"
+}
+
+ensure_app_contexts_file() {
+  local app_contexts_file
+
+  app_contexts_file=$(k8s_app_contexts_file)
+  mkdir -p "$(dirname "$app_contexts_file")"
+
+  if [[ ! -f "$app_contexts_file" ]]; then
+    jq -n '{contexts: []}' >! "$app_contexts_file"
+    return $?
+  fi
+
+  jq -e '.contexts | arrays' < "$app_contexts_file" >/dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    echo "invalid app contexts file: $app_contexts_file"
+    return 1
+  fi
 }
 
 fzf_app_context_selector() {
-  query="$1"
+  local app_contexts_file
+  local query="$1"
 
-  yq '.contexts[] | .name + ";" + .description + ";" + .kube + ";" + .namespace' < "$HOME/.kube/app_contexts.yaml" | \
+  ensure_app_contexts_file || return $?
+  app_contexts_file=$(k8s_app_contexts_file)
+
+  jq -r '.contexts[] | [.name, .description, .kube, .namespace] | @tsv' < "$app_contexts_file" | \
   fzf \
-    -d ';' \
+    -d '\t' \
     --accept-nth 1 \
     --query "$query" \
     --select-1 \
@@ -85,12 +118,16 @@ fzf_app_context_selector() {
 }
 
 kube_set_app_context() {
-  query=$1
+  local app_contexts_file context kube meta namespace query
 
-  if [ -z "$query" ]; then
+  query="$1"
+  ensure_app_contexts_file || return $?
+  app_contexts_file=$(k8s_app_contexts_file)
+
+  if [[ -z "$query" ]]; then
     context=$(fzf_app_context_selector)
   else
-    yq ".contexts[] | select(.name == \"$query\")" < "$HOME/.kube/app_contexts.yaml"
+    jq -e --arg query "$query" '.contexts[]? | select(.name == $query)' < "$app_contexts_file" >/dev/null 2>&1
 
     if [[ $? -ne 0 ]]; then
       context=$(fzf_app_context_selector "$query")
@@ -99,24 +136,26 @@ kube_set_app_context() {
     fi
   fi
 
-  if [ -z "$context" ]; then
+  if [[ -z "$context" ]]; then
     echo "Context not selected, cancel"
     return
   fi
 
-  meta=$(cat $HOME/.kube/app_contexts.yaml | yq ".contexts[] | select(.name == \"$context\")")
+  meta=$(jq --arg context "$context" '.contexts[] | select(.name == $context)' < "$app_contexts_file")
 
-  kube=$(echo "$meta" | yq '.kube')
-  namespace=$(echo "$meta" | yq '.namespace')
+  kube=$(echo "$meta" | jq -r '.kube')
+  namespace=$(echo "$meta" | jq -r '.namespace')
 
-  k8s_sa_silent=TRUE kube_set_context $kube
-  k8s_sa_silent=TRUE kube_set_namespace $namespace
+  k8s_sa_silent=TRUE kube_set_context "$kube" || return $?
+  k8s_sa_silent=TRUE kube_set_namespace "$namespace" || return $?
 
   kenv
 }
 alias ksac=kube_set_app_context
 
 fzf_context_selector () {
+  local query="$1"
+
   sakctl config get-contexts -o name | \
   fzf \
       --query "$query" \
@@ -127,106 +166,117 @@ fzf_context_selector () {
 }
 
 kube_set_context() {
+  local context query ret
+
   query="$1"
 
-  if [ -z "$query" ]; then
+  if [[ -z "$query" ]]; then
     context=$(fzf_context_selector)
   else
-    sakctl config get-contexts -o name $query >/dev/null 2>&1
+    sakctl config get-contexts -o name "$query" >/dev/null 2>&1
 
     if [[ $? -ne 0 ]]; then
-      context=$(fzf_context_selector $query)
+      context=$(fzf_context_selector "$query")
     else
       context=$query
     fi
   fi
 
-  if [ -z "$context" ]; then
+  if [[ -z "$context" ]]; then
     echo "Context not selected, cancel"
     return
   fi
 
   if [[ $k8s_session_aware == "ON" ]]; then
-    kube_set_context_sa $context
+    kube_set_context_sa "$context"
   else
-    kubectl config use-context $context
+    kubectl config use-context "$context"
   fi
+  ret=$?
 
-  if [[ $k8s_sa_silent != "TRUE" ]]; then
+  if [[ $ret -eq 0 && $k8s_sa_silent != "TRUE" ]]; then
     kenv
   fi
+  return $ret
 }
 alias ksc="kube_set_context"
 
 kube_set_namespace_sa() {
-  export k8s_namespace=$1
-  echo $k8s_namespace >! "$HOME/.kube/session_namespace"
+  mkdir -p "$HOME/.kube"
+  export k8s_namespace="$1"
+  echo "$k8s_namespace" >! "$HOME/.kube/session_namespace"
   return 0
 }
 
 kube_set_namespace_raw() {
-  kubectl config set-context "$(kubectl config current-context)" --namespace=$1
+  local ret
+
+  kubectl config set-context "$(kubectl config current-context)" --namespace="$1"
   ret=$?
   return $ret
 }
 
 fzf_ns_selector() {
-  query="$1"
+  local context ns_cache ns_cache_updated_at query
 
+  query="$1"
   context=$(current_context)
 
   ns_cache="$HOME/.kube/cache/ns/$context.json"
+  mkdir -p "$(dirname "$ns_cache")"
 
-  if [ ! -f "$ns_cache" ]; then
-    echo "no ns in cache, updating"
-    sakctl get ns -o json > "$ns_cache"
-    wc -l $ns_cache
+  if [[ ! -f "$ns_cache" ]]; then
+    sakctl get ns -o json > "$ns_cache" || return $?
   fi
 
-  jq -r '.items[].metadata.name' < $ns_cache | \
+  ns_cache_updated_at=$(date -r "$ns_cache" '+%Y-%m-%dT%H:%M:%S%z')
+
+  jq -r '.items[].metadata.name' < "$ns_cache" | \
   fzf \
     --query "$query" \
     --select-1 \
     --preview-window 'down:4' \
     --preview-label 'Namespace info' \
-    --header "Namespaces in $context @ $(date -Iminutes -r $ns_cache); ctrl+r to update" \
-    --bind "ctrl-r:reload(sakctl get ns -o json | tee $ns_cache | jq -r '.items[].metadata.name')" \
+    --header "Namespaces in $context @ $ns_cache_updated_at; ctrl+r to update" \
+    --bind "ctrl-r:reload(sakctl get ns -o json | tee \"$ns_cache\" | jq -r '.items[].metadata.name')" \
     --preview 'describe_ns {1}'
 }
 
 kube_set_namespace() {
+  local namespace query ret
+
   query="$1"
 
-  if [ -z "$query" ]; then
+  if [[ -z "$query" ]]; then
     namespace=$(fzf_ns_selector)
   else
-    sakctl get namespace $query >/dev/null 2>&1
+    sakctl get namespace "$query" >/dev/null 2>&1
     if [[ $? -ne 0 ]]; then
-      namespace=$(fzf_ns_selector $query)
+      namespace=$(fzf_ns_selector "$query")
     else
       namespace=$query
     fi
   fi
 
-  if [ -z "$namespace" ]; then
+  if [[ -z "$namespace" ]]; then
     echo "no namespace selected, cancel"
     return 1
   fi
 
-  sakctl get namespace $namespace >/dev/null 2>&1
-  if [ $? -eq 1 ]; then
+  sakctl get namespace "$namespace" >/dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
     echo "namespace $namespace not found"
     return 1
   fi
 
   if [[ $k8s_session_aware == "ON" ]]; then
-    kube_set_namespace_sa $namespace
+    kube_set_namespace_sa "$namespace"
   else
-    kube_set_namespace_raw $namespace
+    kube_set_namespace_raw "$namespace"
   fi
   ret=$?
 
-  if [[ $k8s_sa_silent != "TRUE" ]]; then
+  if [[ $ret -eq 0 && $k8s_sa_silent != "TRUE" ]]; then
     kenv
   fi
   return $ret
@@ -235,33 +285,48 @@ alias ksn="kube_set_namespace"
 alias ksnd="kube_set_namespace 'default'"
 
 kube_push_context() {
-  echo $k8s_namespace >! "$HOME/.kube/session_namespace"
-  echo $k8s_context >! "$HOME/.kube/session_context"
+  mkdir -p "$HOME/.kube"
+  echo "$k8s_namespace" >! "$HOME/.kube/session_namespace"
+  echo "$k8s_context" >! "$HOME/.kube/session_context"
 
   kenv
 }
 alias kcpush=kube_push_context
 
 kube_pop_context() {
-  context=$(cat "$HOME/.kube/session_context" 2>/dev/null || echo "zeta")
-  namespace=$(cat "$HOME/.kube/session_namespace" 2>/dev/null || echo "default")
-  export k8s_namespace=$namespace
-  export k8s_context=$context
+  local context namespace
+
+  context=$(cat "$HOME/.kube/session_context" 2>/dev/null || echo "${K8S_DEFAULT_CONTEXT:-zeta}")
+  namespace=$(cat "$HOME/.kube/session_namespace" 2>/dev/null || echo "${K8S_DEFAULT_NAMESPACE:-default}")
+  export k8s_namespace="$namespace"
+  export k8s_context="$context"
 
   kenv
 }
 alias kcpop=kube_pop_context
 
 kube_save_app_context() {
+  local app_contexts_file context ctx_description ctx_name tmp_file
+
   read "ctx_name?enter app context name: "
   read "ctx_description?enter app context description: "
 
-  context=$(echo -e -n "- name: $ctx_name\n  kube: $k8s_context\n  namespace: $k8s_namespace\n  description: $ctx_description")
-  echo $context | yq
+  ensure_app_contexts_file || return $?
+  app_contexts_file=$(k8s_app_contexts_file)
+
+  jq -e --arg name "$ctx_name" '.contexts[]? | select(.name == $name)' < "$app_contexts_file" >/dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    echo "app context $ctx_name already exists"
+    return 1
+  fi
+
+  context=$(jq -n --arg name "$ctx_name" --arg kube "$k8s_context" --arg namespace "$k8s_namespace" --arg description "$ctx_description" '{name: $name, kube: $kube, namespace: $namespace, description: $description}')
+  echo "$context"
 
   if read -q "choice?Save? [y/n] "; then
     echo "\nSaving..."
-    echo "$context" | yq >> $HOME/.kube/app_contexts.yaml
+    tmp_file="${app_contexts_file}.tmp"
+    jq --arg name "$ctx_name" --arg kube "$k8s_context" --arg namespace "$k8s_namespace" --arg description "$ctx_description" '.contexts += [{"name": $name, "kube": $kube, "namespace": $namespace, "description": $description}]' "$app_contexts_file" >! "$tmp_file" && mv "$tmp_file" "$app_contexts_file"
   else
     echo "\nAbort..."
   fi
