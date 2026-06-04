@@ -21,6 +21,14 @@ k8s_session_namespace_file() {
   echo "$HOME/.kube/session_namespace"
 }
 
+k8s_context_history_file() {
+  echo "$HOME/.kube/session_context_history"
+}
+
+k8s_context_history_limit() {
+  echo "${K8S_CONTEXT_HISTORY_LIMIT:-100}"
+}
+
 k8s_ns_cache_ttl_seconds() {
   echo "${K8S_NS_CACHE_TTL_SECONDS:-2592000}"
 }
@@ -85,6 +93,157 @@ k8s_refresh_ns_cache() {
   mkdir -p "$(dirname "$cache_file")"
   sakctl get ns -o json | k8s_atomic_write "$cache_file"
 }
+
+k8s_reverse_file() {
+  if command -v tac >/dev/null 2>&1; then
+    tac "$1"
+  else
+    tail -r "$1"
+  fi
+}
+
+k8s_append_context_history() {
+  local context history_file limit namespace now tmp_file
+
+  context="$1"
+  namespace="$2"
+
+  if [[ -z "$context" ]]; then
+    return 0
+  fi
+
+  limit=$(k8s_context_history_limit)
+  if [[ ! "$limit" =~ ^[0-9]+$ || "$limit" -lt 1 ]]; then
+    limit=100
+  fi
+
+  history_file=$(k8s_context_history_file)
+  mkdir -p "$(dirname "$history_file")"
+
+  now=$(date '+%Y-%m-%dT%H:%M:%S%z')
+
+  tmp_file="${history_file}.$$"
+  if [[ -f "$history_file" ]]; then
+    awk -F '\t' -v context="$context" '$2 != context { print $0 }' "$history_file" >! "$tmp_file"
+  else
+    : >! "$tmp_file"
+  fi
+
+  printf '%s\t%s\t%s\n' "$now" "$context" "$namespace" >>! "$tmp_file"
+  command tail -n "$limit" "$tmp_file" >! "${tmp_file}.tail" && command mv -f "${tmp_file}.tail" "$history_file"
+  command rm -f "$tmp_file"
+}
+
+k8s_show_context_history() {
+  local history_file
+
+  history_file=$(k8s_context_history_file)
+  if [[ ! -f "$history_file" ]]; then
+    echo "context history is empty"
+    return 1
+  fi
+
+  awk -F '\t' '{ printf "%-24s %-48s %s\n", $1, $2, $3 }' "$history_file"
+}
+alias kch="k8s_show_context_history"
+
+fzf_context_history_selector() {
+  local history_file query
+
+  query="$1"
+  history_file=$(k8s_context_history_file)
+
+  k8s_require_command fzf || return $?
+
+  if [[ ! -f "$history_file" ]]; then
+    echo "context history is empty"
+    return 1
+  fi
+
+  k8s_reverse_file "$history_file" | \
+  awk -F '\t' '!seen[$2]++ { print $0 }' | \
+  fzf \
+    -d '\t' \
+    --query "$query" \
+    --select-1 \
+    --preview-window 'down:50%' \
+    --with-nth '{2} - {3} @ {1}' \
+    --preview-label 'Cluster Info' \
+    --preview 'describe_cluster {2}'
+}
+
+kube_set_context_from_history() {
+  local context namespace query rest selected
+
+  query="$1"
+  selected=$(fzf_context_history_selector "$query") || return $?
+
+  if [[ -z "$selected" ]]; then
+    echo "Context not selected, cancel"
+    return 1
+  fi
+
+  rest="${selected#*	}"
+  context="${rest%%	*}"
+  namespace="${rest#*	}"
+
+  kube_restore_context_namespace "$context" "$namespace"
+}
+alias ksch="kube_set_context_from_history"
+
+kube_restore_context_namespace() {
+  local context namespace ret
+
+  context="$1"
+  namespace="$2"
+
+  if [[ -z "$context" ]]; then
+    echo "context is required"
+    return 1
+  fi
+
+  if [[ $k8s_session_aware == "ON" ]]; then
+    kube_set_context_sa "$context" || return $?
+    if [[ -n "$namespace" ]]; then
+      kube_set_namespace_sa "$namespace" || return $?
+    fi
+  else
+    kubectl config use-context "$context"
+    ret=$?
+    if [[ $ret -ne 0 ]]; then
+      return $ret
+    fi
+
+    if [[ -n "$namespace" ]]; then
+      kube_set_namespace_raw "$namespace" || return $?
+    fi
+  fi
+
+  k8s_append_context_history "$context" "$namespace"
+  kenv
+}
+
+kube_context_back() {
+  local context history_file namespace previous
+
+  history_file=$(k8s_context_history_file)
+  if [[ ! -f "$history_file" ]]; then
+    echo "context history is empty"
+    return 1
+  fi
+
+  previous=$(k8s_reverse_file "$history_file" | awk -F '\t' -v current="$k8s_context" '$2 != current { print $2 "\t" $3; exit }')
+  if [[ -z "$previous" ]]; then
+    echo "no previous context in history"
+    return 1
+  fi
+
+  context="${previous%%	*}"
+  namespace="${previous#*	}"
+
+  kube_restore_context_namespace "$context" "$namespace"
+}
+alias kcb="kube_context_back"
 
 current_context () {
   if [[ $k8s_session_aware == "ON" ]]; then
@@ -259,9 +418,11 @@ fzf_context_selector () {
 }
 
 kube_set_context() {
-  local context query ret
+  local context old_context old_namespace query ret
 
   query="$1"
+  old_context=$(current_context)
+  old_namespace="$k8s_namespace"
 
   if [[ -z "$query" ]]; then
     context=$(fzf_context_selector)
@@ -286,6 +447,11 @@ kube_set_context() {
     kubectl config use-context "$context"
   fi
   ret=$?
+
+  if [[ $ret -eq 0 && "$old_context" != "$context" ]]; then
+    k8s_append_context_history "$old_context" "$old_namespace"
+    k8s_append_context_history "$context" "$k8s_namespace"
+  fi
 
   if [[ $ret -eq 0 && $k8s_sa_silent != "TRUE" ]]; then
     kenv
@@ -371,6 +537,10 @@ kube_set_namespace() {
     kube_set_namespace_raw "$namespace"
   fi
   ret=$?
+
+  if [[ $ret -eq 0 ]]; then
+    k8s_append_context_history "$k8s_context" "$namespace"
+  fi
 
   if [[ $ret -eq 0 && $k8s_sa_silent != "TRUE" ]]; then
     kenv
