@@ -9,6 +9,14 @@ init() {
 
 init
 
+current_context () {
+  if [[ $k8s_session_aware == "ON" ]]; then
+    echo $k8s_context
+  else
+    kubectl config current-context
+  fi
+}
+
 kenv() {
   echo -e "session aware: $k8s_session_aware"
   if [[ $k8s_debug == "ON" ]]; then
@@ -61,8 +69,40 @@ kube_set_context_sa() {
   echo $k8s_context >! "$HOME/.kube/session_context"
 }
 
+fzf_app_context_selector() {
+  query="$1"
+
+  yq '.contexts[] | .name + ";" + .description + ";" + .kube + ";" + .namespace' < "$HOME/.kube/app_contexts.yaml" | \
+  fzf \
+    -d ';' \
+    --accept-nth 1 \
+    --query "$query" \
+    --select-1 \
+    --preview-window 'down:4' \
+    --with-nth '{1} - {2}' \
+    --preview-label 'App Context Info' \
+    --preview "echo '# {1}\n==========\ncluster: {3}\nnamespace: {4}'"
+}
+
 kube_set_app_context() {
-  context=$1
+  query=$1
+
+  if [ -z "$query" ]; then
+    context=$(fzf_app_context_selector)
+  else
+    yq ".contexts[] | select(.name == \"$query\")" < "$HOME/.kube/app_contexts.yaml"
+
+    if [[ $? -ne 0 ]]; then
+      context=$(fzf_app_context_selector "$query")
+    else
+      context=$query
+    fi
+  fi
+
+  if [ -z "$context" ]; then
+    echo "Context not selected, cancel"
+    return
+  fi
 
   meta=$(cat $HOME/.kube/app_contexts.yaml | yq ".contexts[] | select(.name == \"$context\")")
 
@@ -76,10 +116,35 @@ kube_set_app_context() {
 }
 alias ksac=kube_set_app_context
 
+fzf_context_selector () {
+  sakctl config get-contexts -o name | \
+  fzf \
+      --query "$query" \
+      --select-1 \
+      --preview-window 'down:50%' \
+      --preview-label 'Cluster Info' \
+      --preview 'describe_cluster {1}'
+}
+
 kube_set_context() {
   query="$1"
 
-  context=$(sakctl config get-contexts -o name | fzf -q "$query")
+  if [ -z "$query" ]; then
+    context=$(fzf_context_selector)
+  else
+    sakctl config get-contexts -o name $query >/dev/null 2>&1
+
+    if [[ $? -ne 0 ]]; then
+      context=$(fzf_context_selector $query)
+    else
+      context=$query
+    fi
+  fi
+
+  if [ -z "$context" ]; then
+    echo "Context not selected, cancel"
+    return
+  fi
 
   if [[ $k8s_session_aware == "ON" ]]; then
     kube_set_context_sa $context
@@ -100,16 +165,52 @@ kube_set_namespace_sa() {
 }
 
 kube_set_namespace_raw() {
-  kubectl config set-context $(k config current-context) --namespace=$1
+  kubectl config set-context "$(kubectl config current-context)" --namespace=$1
   ret=$?
   return $ret
 }
 
-kube_set_namespace() {
-  namespace=$1
+fzf_ns_selector() {
+  query="$1"
 
-  if [[ $namespace == "" ]]; then
-    namespace=$(sakctl get ns | fzf)
+  context=$(current_context)
+
+  ns_cache="$HOME/.kube/cache/ns/$context.json"
+
+  if [ ! -f "$ns_cache" ]; then
+    echo "no ns in cache, updating"
+    sakctl get ns -o json > "$ns_cache"
+    wc -l $ns_cache
+  fi
+
+  jq -r '.items[].metadata.name' < $ns_cache | \
+  fzf \
+    --query "$query" \
+    --select-1 \
+    --preview-window 'down:4' \
+    --preview-label 'Namespace info' \
+    --header "Namespaces in $context @ $(date -Iminutes -r $ns_cache); ctrl+r to update" \
+    --bind "ctrl-r:reload(sakctl get ns -o json | tee $ns_cache | jq -r '.items[].metadata.name')" \
+    --preview 'describe_ns {1}'
+}
+
+kube_set_namespace() {
+  query="$1"
+
+  if [ -z "$query" ]; then
+    namespace=$(fzf_ns_selector)
+  else
+    sakctl get namespace $query >/dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+      namespace=$(fzf_ns_selector $query)
+    else
+      namespace=$query
+    fi
+  fi
+
+  if [ -z "$namespace" ]; then
+    echo "no namespace selected, cancel"
+    return 1
   fi
 
   sakctl get namespace $namespace >/dev/null 2>&1
@@ -130,7 +231,6 @@ kube_set_namespace() {
   fi
   return $ret
 }
-
 alias ksn="kube_set_namespace"
 alias ksnd="kube_set_namespace 'default'"
 
@@ -166,4 +266,3 @@ kube_save_app_context() {
     echo "\nAbort..."
   fi
 }
-
