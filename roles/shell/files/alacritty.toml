@@ -1,0 +1,49 @@
+
+[terminal.shell]
+program = "/opt/homebrew/bin/tmux"
+#program = "/Users/evpersienko/bin/alatmux.sh"
+#program = "/Users/evpersienko/bin/alatmux.sh"
+#args = ["new-session", "-A", "-s", "alacritty"]
+
+
+[window]
+decorations = "Full"
+resize_increments = true
+option_as_alt = "OnlyLeft"
+padding = { x = 3, y = 3 }
+dynamic_padding = true
+[window.dimensions]
+columns = 210
+lines = 50
+
+[font]
+normal = { family = "FiraMono Nerd Font Propo", style = "Regular" }
+bold = { family = "FiraMono Nerd Font Propo", style = "Bold" }
+italic = { family = "FiraMono Nerd Font Propo", style = "Italic" }
+bold_italic = { family = "FiraMono Nerd Font Propo", style = "Bold Italic" }
+size = 13
+
+[selection]
+save_to_clipboard = true
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+vi_mode_style = { shape = "Underline", blinking = "On" }
+
+[keyboard]
+bindings = [
+    #{ key = "C", mods = "Command | Shift", action = "ToggleViMode" },
+    { key = "Escape", mode = "Vi", action = "ToggleViMode" },
+]
+
+[general]
+import = [
+  # uncomment the flavour you want below:
+  #"~/.config/alacritty/catppuccin-latte.toml"
+  #"~/.config/alacritty/catppuccin-frappe.toml"
+  #"~/.config/alacritty/catppuccin-macchiato.toml"
+  #"~/.config/alacritty/catppuccin-mocha.toml"
+  #"~/.config/alacritty/kanagawa.toml"
+]
+
+[terminal]

@@ -38,6 +38,7 @@ export GOPATH="{{codehome}}/goroot"
 export GOSRC="{{codehome}}/goroot/src"
 export CODEHOME={{codehome}}
 export CMDB_TOKEN_FILE="$HOME/.cmdb.token"
+export KUBECTL_PLUGINS_GRAFANA_TOKEN="$(cat $HOME/.grafana.token)"
 
 #
 # Paths
@@ -54,6 +55,9 @@ path=(
   $GOPATH/bin
   $HOME/Library/Python/3.7/bin
   $HOME/.krew/bin
+  $HOME/.kube/plugins/bin
+  $HOME/.opencode/bin
+  $HOME/.local/bin
   {{ packages_bin }}
   $path
 )
@@ -84,3 +88,6 @@ fi
 
 # vi mode fast switch
 export KEYTIMEOUT=1
+
+# Added by `rbenv init` on Thu Feb 19 18:20:45 MSK 2026
+eval "$(rbenv init - --no-rehash zsh)"

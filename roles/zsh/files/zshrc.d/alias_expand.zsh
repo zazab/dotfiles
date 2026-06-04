@@ -1,5 +1,5 @@
 globalias() {
-    if [[ $LBUFFER =~ \ [A-Z]+$ ]]; then
+    if [[ $LBUFFER =~ \ [A-Z][A-Za-z-]*$ ]]; then
         zle _expand_alias
         zle expand-word
     fi

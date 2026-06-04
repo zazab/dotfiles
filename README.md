@@ -9,7 +9,7 @@
 `.zsh/zshrc.d` автоматически подгружаются при старте терминала.
 Разделение сделано для возможности как-то группировать конфиги логически.
 
-Пример использования:
+Пример использования
 
 ```shell
 ansible-playbook -c local -i localhost, strap_configs.yaml -t zsh -e home=$HOME -e custom_items=avito --diff

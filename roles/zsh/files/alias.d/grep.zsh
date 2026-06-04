@@ -1,3 +1,15 @@
-alias grep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+alias grep='rg'
+
+rfz() {
+    rg \
+        --line-number \
+        --no-heading \
+        --color=always \
+        --smart-case $@ | \
+        fzf -d ':' \
+        -n 2.. \
+        --ansi --no-sort \
+        --preview-window 'up:11:+{2}-5' \
+        --preview 'bat --style=numbers --color=always --highlight-line {2} {1}'
+}
+

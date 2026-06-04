@@ -72,6 +72,7 @@
     - zshrc.d/history
     - zshrc.d/p10k
     - zshrc.d/rvm
+    - zshrc.d/gvm
     - custom.d/_
     - generated_completions.d/_
 
@@ -79,7 +80,7 @@
   copy:
     src: "{{item}}"
     dest: "{{ansible_user_dir}}/bin/{{item}}"
-    mode: 0644
+    mode: 0755
     directory_mode: yes
   with_items:
     - k8s

@@ -61,14 +61,35 @@ kube_set_context_sa() {
   echo $k8s_context >! "$HOME/.kube/session_context"
 }
 
-kube_set_context() {
-  if [[ $k8s_session_aware == "ON" ]]; then
-    kube_set_context_sa $@
-  else
-    kubectl config use-context $1
-  fi
+kube_set_app_context() {
+  context=$1
+
+  meta=$(cat $HOME/.kube/app_contexts.yaml | yq ".contexts[] | select(.name == \"$context\")")
+
+  kube=$(echo "$meta" | yq '.kube')
+  namespace=$(echo "$meta" | yq '.namespace')
+
+  k8s_sa_silent=TRUE kube_set_context $kube
+  k8s_sa_silent=TRUE kube_set_namespace $namespace
 
   kenv
+}
+alias ksac=kube_set_app_context
+
+kube_set_context() {
+  query="$1"
+
+  context=$(sakctl config get-contexts -o name | fzf -q "$query")
+
+  if [[ $k8s_session_aware == "ON" ]]; then
+    kube_set_context_sa $context
+  else
+    kubectl config use-context $context
+  fi
+
+  if [[ $k8s_sa_silent != "TRUE" ]]; then
+    kenv
+  fi
 }
 alias ksc="kube_set_context"
 
@@ -88,7 +109,7 @@ kube_set_namespace() {
   namespace=$1
 
   if [[ $namespace == "" ]]; then
-    namespace=default
+    namespace=$(sakctl get ns | fzf)
   fi
 
   sakctl get namespace $namespace >/dev/null 2>&1
@@ -104,7 +125,9 @@ kube_set_namespace() {
   fi
   ret=$?
 
-  kenv
+  if [[ $k8s_sa_silent != "TRUE" ]]; then
+    kenv
+  fi
   return $ret
 }
 
@@ -128,3 +151,19 @@ kube_pop_context() {
   kenv
 }
 alias kcpop=kube_pop_context
+
+kube_save_app_context() {
+  read "ctx_name?enter app context name: "
+  read "ctx_description?enter app context description: "
+
+  context=$(echo -e -n "- name: $ctx_name\n  kube: $k8s_context\n  namespace: $k8s_namespace\n  description: $ctx_description")
+  echo $context | yq
+
+  if read -q "choice?Save? [y/n] "; then
+    echo "\nSaving..."
+    echo "$context" | yq >> $HOME/.kube/app_contexts.yaml
+  else
+    echo "\nAbort..."
+  fi
+}
+

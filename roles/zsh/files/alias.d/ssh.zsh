@@ -1,27 +1,11 @@
-# ssh aliases
-alias -g U='sudo -i'
-alias -g Z='zsh'
-
-# 20.12.L -> ssh 192.168.20.12
-# 20.12.P -> ssh 172.16.20.12
-# t1.e    -> ssh ngs.ru.t1
-# s.s     -> ssh s.s
 # blah.ru -> ssh blah.ru
-# node.p  -> ssh node.in.ngs.ru
 # node.x  -> (resolve via search domain setting) ssh node
-# alias -s L='ssh-helper 192.168. .L "" ""'
-# alias -s P='ssh-helper 172.16. .P "" ""'
-# alias -s e='ssh-helper ngs.ru. .e "" ""'
-# alias -s s='ssh-helper "" .s .dev.ivi.ru ""'
-# alias -s i='ssh-helper "" .i .dev.ivi.ru ""'
-# alias -s n='ssh-helper "" .n .at.netstream.ru ""'
 alias -s ru='ssh-helper "" .ru .ru "" ""'
-# alias -s mk='ssh-helper "" .mk .epersienko.notkube.dev.ivi.ru ""'
-# alias -s wk='ssh-helper "" .wk .epersienkowut.notkube.dev.ivi.ru ""'
-# alias -s k='ssh-helper "" .k .notkube.dev.ivi.ru ""'
 alias -s x='ssh-helper "" .x "" "" ""'
-alias -s   s='ssh-helper "" .s "" "" "yes"'
-# alias -s R='ssh-helper "" .R "" "root"'
+alias -s s='ssh-helper "" .s "" "" "yes"'
+alias -s uz='ssh-helper "" .uz ".sc.uz.internal" "" "yes"'
+alias -s sbc='ssh-helper "" .sbc ".sber.cloud.avito.ru" "" "yes"'
+
 
 function ssh-helper() {
     local prefix="$1"

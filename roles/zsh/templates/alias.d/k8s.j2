@@ -6,6 +6,8 @@ alias k="$kctl_binary"
 alias kl="$kctl_binary logs"
 alias kt="$kctl_binary"
 alias ke="$kctl_binary exec -ti"
+alias kdbg="$kctl_binary debug -it"
+alias -g DBG="--image=registry.k.avito.ru/avito/service-golang:1.25"
 
 # get aliases
 alias kgp="$kctl_binary get po"
@@ -13,23 +15,36 @@ alias kgpw="$kctl_binary get po -o wide"
 alias kgpy="$kctl_binary get po -o yaml"
 alias kgpj="$kctl_binary get po -o json"
 alias kgd="$kctl_binary get deploy"
+alias kgdy="$kctl_binary get deploy -o yaml"
 alias kgns="$kctl_binary get ns"
+alias kgnsy="$kctl_binary get ns -o yaml"
 alias kgn="$kctl_binary get no"
+alias kgny="$kctl_binary get no -o yaml"
 alias kgn_taints="$kctl_binary get no -o go-template-file=/Users/evpersienko/.kube/tpls/node_with_taints.tpl"
 alias kgn_labels="$kctl_binary get no -o go-template-file=/Users/evpersienko/.kube/tpls/node_with_labels.tpl"
 alias kgn_cordon="$kctl_binary get no -o go-template-file=/Users/evpersienko/.kube/tpls/node_cordon_reason.tpl | grep cordon"
 alias kgs="$kctl_binary get svc"
+alias kgsy="$kctl_binary get svc -o yaml"
 alias kgcm="$kctl_binary get cm"
+alias kgcmy="$kctl_binary get cm -o yaml"
 alias kgsec="$kctl_binary get secret"
+alias kgsecy="$kctl_binary get secret -o yaml"
 alias kgrs="$kctl_binary get rs"
 alias kgrb="$kctl_binary get rolebinding"
+alias kgrby="$kctl_binary get rolebinding -o yaml"
 alias kgro="$kctl_binary get role"
+alias kgroy="$kctl_binary get role"
 alias kgcrb="$kctl_binary get clusterrolebinding"
+alias kgcrby="$kctl_binary get clusterrolebinding -o yaml"
 alias kgcro="$kctl_binary get clusterrole"
+alias kgcroy="$kctl_binary get clusterrole -o yaml"
 alias kgcrd="$kctl_binary get crd"
 alias kgsa="$kctl_binary get sa"
+alias kgsay="$kctl_binary get sa -o yaml"
 alias kgi="$kctl_binary get ing"
+alias kgiy="$kctl_binary get ing -o yaml"
 alias kgds="$kctl_binary get ds"
+alias kgdsy="$kctl_binary get daemonset -o yaml"
 alias kge="$kctl_binary get events --sort-by='{.lastTimestamp}'"
 alias kge_nodes="$kctl_binary get events --sort-by='{.lastTimestamp}' -A --field-selector 'involvedObject.kind=Node'"
 alias kge_pods="$kctl_binary get events --sort-by='{.lastTimestamp}' --field-selector='involvedObject.kind=Pod'"
@@ -55,21 +70,83 @@ alias kdds="$kctl_binary describe ds"
 # delete aliases
 alias kdelp="$kctl_binary delete po"
 
-# capi aliases
+# CAPI aliases
+capi_alias () {
+    echo 'alias kgm="$kctl_binary get machine"'
+    echo 'alias kgpm="$kctl_binary get platformmachine"'
+    echo 'alias kgvm="$kctl_binary get virtualmachine"'
+    echo '## machine deployments & c-p'
+    echo 'alias kgmd="$kctl_binary get machinedeployment"'
+    echo 'alias kgkac="$kctl_binary get kubeadmcontrolplane"'
+    echo 'alias kgkact="$kctl_binary get kubeadmconfigtemplate"'
+    echo '## Clusters'
+    echo 'alias kgclu="$kctl_binary get cluster"'
+    echo 'alias kgaclu="$kctl_binary get infracluster"'
+    echo 'alias kgcc="$kctl_binary get clusterclass"'
+    echo '## Label-selectors'
+    echo 'alias -g CL-cluster="cluster.x-k8s.io/cluster-name="'
+    echo 'alias -g CL-control-plane="cluster.x-k8s.io/control-plane"'
+}
+
+## single machines
 alias kgm="$kctl_binary get machine"
-alias kgmd="$kctl_binary get machinedeployment"
 alias kgpm="$kctl_binary get platformmachine"
-alias kgpmt="$kctl_binary get platformmachinetemplate"
-alias kglxc="$kctl_binary get cmdblxc"
-alias kglxct="$kctl_binary get cmdblxctemplate"
-alias kgkact="$kctl_binary get kubeadmconfigtemplate"
+alias kgvm="$kctl_binary get virtualmachine"
+## machine deployments & c-p
+alias kgmd="$kctl_binary get machinedeployment"
 alias kgkac="$kctl_binary get kubeadmcontrolplane"
-alias kgbms="$kctl_binary get baremetalserver"
-alias kgc="$kctl_binary get cluster"
-alias kgic="$kctl_binary get infracluster"
-alias -g LC="-l cluster.x-k8s.io/cluster-name="
+alias kgkact="$kctl_binary get kubeadmconfigtemplate"
+## Clusters
+alias kgclu="$kctl_binary get cluster"
+alias kgaclu="$kctl_binary get infracluster"
+alias kgcc="$kctl_binary get clusterclass"
+## Label selectors
+alias -g CL-cluster="cluster.x-k8s.io/cluster-name="
+alias -g CL-control-plane="cluster.x-k8s.io/control-plane"
 
 alias -g NAN="| grep -E 'NotReady|Disabled'"
 
+# Sorting
 alias -g SAGE="--sort-by=.metadata.creationTimestamp"
 alias -g SNODE="--sort-by=.spec.nodeName"
+
+label_selector_alias () {
+    echo '# Label-selectors kube-system'
+    echo 'alias -g L-coredns-nodecache="-l k8s-app=coredns-nodecache"'
+    echo 'alias -g L-nodecache="-l k8s-app=coredns-nodecache"'
+    echo 'alias -g L-kube-proxy="-l k8s-app=kube-proxy"'
+    echo 'alias -g L-uccm="-l k8s-app=universal-cloud-controller-manager"'
+    echo 'alias -g L-kube-dns="-l k8s-app=kube-dns"'
+    echo 'alias -g L-calico-node="-l k8s-app=calico-node"'
+    echo 'alias -g L-calico-kube="-l k8s-app=calico-kube"'
+    echo 'alias -g L-kube-scheduler="-l component=kube-scheduler"'
+    echo 'alias -g L-kcm="-l component=kube-controller-manager"'
+    echo 'alias -g L-kube-apiserver="-l component=kube-apiserver"'
+    echo 'alias -g L-apiserver="-l component=kube-apiserver"'
+    echo 'alias -g L-etcd="-l component=etcd"'
+    echo 'alias -g L-node-problem-detector="-l app=node-problem-detector"'
+    echo 'alias -g L-npd="-l app=node-problem-detector"'
+    echo 'alias -g L-cluster-metadata="-l app=cluster-metadata"'
+    echo 'alias -g L-kube-state-metrics="-l app.kubernetes.io/name=kube-state-metrics"'
+    echo 'alias -g L-ksm="-l app.kubernetes.io/name=kube-state-metrics"'
+    echo 'alias -g L-metrics-server="-l app.kubernetes.io/name=metrics-server"'
+}
+# Label-selectors kube-system
+alias -g L-coredns-nodecache="-l k8s-app=coredns-nodecache"
+alias -g L-nodecache="-l k8s-app=coredns-nodecache"
+alias -g L-kube-proxy="-l k8s-app=kube-proxy"
+alias -g L-uccm="-l k8s-app=universal-cloud-controller-manager"
+alias -g L-kube-dns="-l k8s-app=kube-dns"
+alias -g L-calico-node="-l k8s-app=calico-node"
+alias -g L-calico-kube="-l k8s-app=calico-kube"
+alias -g L-kube-scheduler="-l component=kube-scheduler"
+alias -g L-kcm="-l component=kube-controller-manager"
+alias -g L-kube-apiserver="-l component=kube-apiserver"
+alias -g L-apiserver="-l component=kube-apiserver"
+alias -g L-etcd="-l component=etcd"
+alias -g L-node-problem-detector="-l app=node-problem-detector"
+alias -g L-npd="-l app=node-problem-detector"
+alias -g L-cluster-metadata="-l app=cluster-metadata"
+alias -g L-kube-state-metrics="-l app.kubernetes.io/name=kube-state-metrics"
+alias -g L-ksm="-l app.kubernetes.io/name=kube-state-metrics"
+alias -g L-metrics-server="-l app.kubernetes.io/name=metrics-server"
