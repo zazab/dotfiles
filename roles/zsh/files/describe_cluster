@@ -1,0 +1,91 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh
+setopt pipe_fail
+
+cluster="$1"
+registry_url="${K8S_CLUSTER_REGISTRY_URL:-https://prod.k.avito.ru/service-cluster-registry/searchV3/}"
+source_header="${K8S_CLUSTER_REGISTRY_SOURCE:-${USER:-describe_cluster}}"
+
+usage() {
+  echo "usage: describe_cluster <cluster-name>"
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "required command not found: $1"
+    return 1
+  fi
+}
+
+if [[ -z "$cluster" ]]; then
+  usage
+  exit 2
+fi
+
+require_command avito || exit 127
+require_command curl || exit 127
+require_command jq || exit 127
+
+personal_key=$(avito login personal-key-path 2>/dev/null)
+if [[ -z "$personal_key" ]]; then
+  echo "failed to resolve avito personal key path"
+  exit 1
+fi
+
+personal_cert=$(avito login personal-cert-path 2>/dev/null)
+if [[ -z "$personal_cert" ]]; then
+  echo "failed to resolve avito personal cert path"
+  exit 1
+fi
+
+request_body=$(jq -n --arg name "$cluster" '{name: $name}')
+if [[ $? -ne 0 ]]; then
+  echo "failed to build cluster-registry request"
+  exit 1
+fi
+
+ans=$(curl \
+  --fail \
+  --silent \
+  --show-error \
+  --key "$personal_key" \
+  --cert "$personal_cert" \
+  --location \
+  --request POST \
+  "$registry_url" \
+  --header "X-Source: $source_header" \
+  --header 'Content-Type: application/json' \
+  --data-raw "$request_body" | jq 'del(.result.clusters[]?.caData)' -c)
+if [[ $? -ne 0 || -z "$ans" ]]; then
+  echo "failed to query cluster-registry for $cluster"
+  exit 1
+fi
+
+count=$(jq '.result.clusters | length' <<< "$ans")
+if [[ $? -ne 0 ]]; then
+  echo "invalid cluster-registry response"
+  exit 1
+fi
+
+if [[ "$count" -lt 1 ]]; then
+  echo "# $cluster not in cluster-registry, probably deleted"
+  exit 0
+fi
+
+meta=$(jq '.result.clusters[0]' -c <<< "$ans")
+
+contour=$(jq -r '.contour // "-"' <<< "$meta")
+dc=$(jq -r '.dataCenter.name // "-"' <<< "$meta")
+description=$(jq -r '.description // ""' <<< "$meta")
+envs=$(jq -c '.envs // []' <<< "$meta")
+version=$(jq -r '.k8sVersion // "-"' <<< "$meta")
+purpose=$(jq -r 'first(.features[]? | select(.name == "iaas.avito.ru/purpose") | .value) // "-"' <<< "$meta")
+
+echo "# $cluster @$dc [$purpose] ($version; $contour:$envs)"
+if [[ -n "$description" ]]; then
+  echo "$description"
+fi
+echo "------------------------------------------------------------------------"
+
+jq -r '.features[]? | select(.name != "iaas.avito.ru/purpose") | .name + "=" + .value' <<< "$meta" | sort | column

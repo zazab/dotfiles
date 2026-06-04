@@ -13,6 +13,79 @@ k8s_session_init() {
 
 k8s_session_init
 
+k8s_session_context_file() {
+  echo "$HOME/.kube/session_context"
+}
+
+k8s_session_namespace_file() {
+  echo "$HOME/.kube/session_namespace"
+}
+
+k8s_ns_cache_ttl_seconds() {
+  echo "${K8S_NS_CACHE_TTL_SECONDS:-2592000}"
+}
+
+k8s_require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "required command not found: $1"
+    return 1
+  fi
+}
+
+k8s_cache_key() {
+  if command -v shasum >/dev/null 2>&1; then
+    printf '%s' "$1" | shasum | awk '{print $1}'
+  else
+    printf '%s' "$1" | sha1sum | awk '{print $1}'
+  fi
+}
+
+k8s_atomic_write() {
+  local target tmp_file
+
+  target="$1"
+  tmp_file="${target}.$$"
+
+  command tee "$tmp_file" >/dev/null || return $?
+  command mv -f "$tmp_file" "$target"
+}
+
+k8s_ns_cache_file() {
+  local cache_key context
+
+  context="$1"
+  cache_key=$(k8s_cache_key "$context")
+  echo "$HOME/.kube/cache/ns/$cache_key.json"
+}
+
+k8s_ns_cache_is_fresh() {
+  local cache_file now ttl updated_at
+
+  cache_file="$1"
+  ttl=$(k8s_ns_cache_ttl_seconds)
+
+  if [[ ! "$ttl" =~ ^[0-9]+$ ]]; then
+    echo "invalid K8S_NS_CACHE_TTL_SECONDS: $ttl"
+    return 1
+  fi
+
+  if [[ ! -f "$cache_file" ]]; then
+    return 1
+  fi
+
+  now=$(date +%s)
+  updated_at=$(date -r "$cache_file" +%s)
+  [[ $((now - updated_at)) -lt $ttl ]]
+}
+
+k8s_refresh_ns_cache() {
+  local cache_file
+
+  cache_file="$1"
+  mkdir -p "$(dirname "$cache_file")"
+  sakctl get ns -o json | k8s_atomic_write "$cache_file"
+}
+
 current_context () {
   if [[ $k8s_session_aware == "ON" ]]; then
     echo "$k8s_context"
@@ -52,8 +125,22 @@ toggle_session_awareness() {
   else
     export k8s_session_aware=ON
   fi
+
+  kenv
 }
 alias ksa="toggle_session_awareness"
+
+k8s_session_awareness_on() {
+  export k8s_session_aware=ON
+  kenv
+}
+alias ksaon="k8s_session_awareness_on"
+
+k8s_session_awareness_off() {
+  export k8s_session_aware=OFF
+  kenv
+}
+alias ksaoff="k8s_session_awareness_off"
 
 toggle_k8s_debug() {
   if [[ $k8s_debug == "ON" ]]; then
@@ -61,8 +148,11 @@ toggle_k8s_debug() {
   else
     export k8s_debug=ON
   fi
+
+  kenv
 }
 alias ktd="toggle_k8s_debug"
+alias kraw="kubectl"
 
 kube_set_context_sa() {
   kubectl config get-contexts "$1" 1>/dev/null 2>&1
@@ -73,7 +163,7 @@ kube_set_context_sa() {
 
   mkdir -p "$HOME/.kube"
   export k8s_context="$1"
-  echo "$k8s_context" >! "$HOME/.kube/session_context"
+  echo "$k8s_context" | k8s_atomic_write "$(k8s_session_context_file)"
 }
 
 k8s_app_contexts_file() {
@@ -83,15 +173,16 @@ k8s_app_contexts_file() {
 ensure_app_contexts_file() {
   local app_contexts_file
 
+  k8s_require_command jq || return $?
   app_contexts_file=$(k8s_app_contexts_file)
   mkdir -p "$(dirname "$app_contexts_file")"
 
   if [[ ! -f "$app_contexts_file" ]]; then
-    jq -n '{contexts: []}' >! "$app_contexts_file"
+    jq -n '{contexts: []}' | k8s_atomic_write "$app_contexts_file"
     return $?
   fi
 
-  jq -e '.contexts | arrays' < "$app_contexts_file" >/dev/null 2>&1
+  jq -e '(.contexts | arrays) and all(.contexts[]?; ((.name | type) == "string") and ((.description | type) == "string") and ((.kube | type) == "string") and ((.namespace | type) == "string"))' < "$app_contexts_file" >/dev/null 2>&1
   if [[ $? -ne 0 ]]; then
     echo "invalid app contexts file: $app_contexts_file"
     return 1
@@ -102,6 +193,7 @@ fzf_app_context_selector() {
   local app_contexts_file
   local query="$1"
 
+  k8s_require_command fzf || return $?
   ensure_app_contexts_file || return $?
   app_contexts_file=$(k8s_app_contexts_file)
 
@@ -156,6 +248,7 @@ alias ksac=kube_set_app_context
 fzf_context_selector () {
   local query="$1"
 
+  k8s_require_command fzf || return $?
   sakctl config get-contexts -o name | \
   fzf \
       --query "$query" \
@@ -204,7 +297,7 @@ alias ksc="kube_set_context"
 kube_set_namespace_sa() {
   mkdir -p "$HOME/.kube"
   export k8s_namespace="$1"
-  echo "$k8s_namespace" >! "$HOME/.kube/session_namespace"
+  echo "$k8s_namespace" | k8s_atomic_write "$(k8s_session_namespace_file)"
   return 0
 }
 
@@ -222,11 +315,14 @@ fzf_ns_selector() {
   query="$1"
   context=$(current_context)
 
-  ns_cache="$HOME/.kube/cache/ns/$context.json"
+  k8s_require_command fzf || return $?
+  k8s_require_command jq || return $?
+
+  ns_cache=$(k8s_ns_cache_file "$context")
   mkdir -p "$(dirname "$ns_cache")"
 
-  if [[ ! -f "$ns_cache" ]]; then
-    sakctl get ns -o json > "$ns_cache" || return $?
+  if ! k8s_ns_cache_is_fresh "$ns_cache"; then
+    k8s_refresh_ns_cache "$ns_cache" || return $?
   fi
 
   ns_cache_updated_at=$(date -r "$ns_cache" '+%Y-%m-%dT%H:%M:%S%z')
@@ -237,8 +333,8 @@ fzf_ns_selector() {
     --select-1 \
     --preview-window 'down:4' \
     --preview-label 'Namespace info' \
-    --header "Namespaces in $context @ $ns_cache_updated_at; ctrl+r to update" \
-    --bind "ctrl-r:reload(sakctl get ns -o json | tee \"$ns_cache\" | jq -r '.items[].metadata.name')" \
+    --header "Namespaces in $context @ $ns_cache_updated_at; ttl $(k8s_ns_cache_ttl_seconds)s; ctrl+r to update" \
+    --bind "ctrl-r:reload(sakctl get ns -o json > \"$ns_cache.tmp\" && command mv -f \"$ns_cache.tmp\" \"$ns_cache\" && jq -r '.items[].metadata.name' < \"$ns_cache\")" \
     --preview 'describe_ns {1}'
 }
 
@@ -286,8 +382,8 @@ alias ksnd="kube_set_namespace 'default'"
 
 kube_push_context() {
   mkdir -p "$HOME/.kube"
-  echo "$k8s_namespace" >! "$HOME/.kube/session_namespace"
-  echo "$k8s_context" >! "$HOME/.kube/session_context"
+  echo "$k8s_namespace" | k8s_atomic_write "$(k8s_session_namespace_file)"
+  echo "$k8s_context" | k8s_atomic_write "$(k8s_session_context_file)"
 
   kenv
 }
@@ -296,16 +392,18 @@ alias kcpush=kube_push_context
 kube_pop_context() {
   local context namespace
 
-  context=$(cat "$HOME/.kube/session_context" 2>/dev/null || echo "${K8S_DEFAULT_CONTEXT:-zeta}")
-  namespace=$(cat "$HOME/.kube/session_namespace" 2>/dev/null || echo "${K8S_DEFAULT_NAMESPACE:-default}")
+  context=$(cat "$(k8s_session_context_file)" 2>/dev/null || echo "${K8S_DEFAULT_CONTEXT:-zeta}")
+  namespace=$(cat "$(k8s_session_namespace_file)" 2>/dev/null || echo "${K8S_DEFAULT_NAMESPACE:-default}")
   export k8s_namespace="$namespace"
   export k8s_context="$context"
 
   kenv
 }
 alias kcpop=kube_pop_context
+alias kcreload=kube_pop_context
 
 kube_save_app_context() {
+  
   local app_contexts_file context ctx_description ctx_name tmp_file
 
   read "ctx_name?enter app context name: "
@@ -326,7 +424,7 @@ kube_save_app_context() {
   if read -q "choice?Save? [y/n] "; then
     echo "\nSaving..."
     tmp_file="${app_contexts_file}.tmp"
-    jq --arg name "$ctx_name" --arg kube "$k8s_context" --arg namespace "$k8s_namespace" --arg description "$ctx_description" '.contexts += [{"name": $name, "kube": $kube, "namespace": $namespace, "description": $description}]' "$app_contexts_file" >! "$tmp_file" && mv "$tmp_file" "$app_contexts_file"
+    jq --arg name "$ctx_name" --arg kube "$k8s_context" --arg namespace "$k8s_namespace" --arg description "$ctx_description" '.contexts += [{"name": $name, "kube": $kube, "namespace": $namespace, "description": $description}]' "$app_contexts_file" >! "$tmp_file" && command mv -f "$tmp_file" "$app_contexts_file"
   else
     echo "\nAbort..."
   fi

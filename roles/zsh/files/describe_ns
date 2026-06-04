@@ -1,0 +1,47 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh
+setopt pipe_fail
+
+namespace="$1"
+cluster="${k8s_context:-}"
+
+usage() {
+  echo "usage: describe_ns <namespace>"
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "required command not found: $1"
+    return 1
+  fi
+}
+
+if [[ -z "$namespace" ]]; then
+  usage
+  exit 2
+fi
+
+require_command sakctl || exit 127
+require_command jq || exit 127
+
+if [[ -z "$cluster" ]]; then
+  cluster=$(sakctl config current-context 2>/dev/null)
+fi
+
+pods=$(sakctl get po -n "$namespace" -o json | jq '.items | length')
+if [[ $? -ne 0 ]]; then
+  echo "failed to read pods in namespace: $namespace"
+  exit 1
+fi
+
+svc=$(sakctl get svc -n "$namespace" -o json | jq '.items | length')
+if [[ $? -ne 0 ]]; then
+  echo "failed to read services in namespace: $namespace"
+  exit 1
+fi
+
+echo "# $namespace@$cluster"
+echo "# ======================================================================"
+echo "pods: $pods"
+echo "svc: $svc"

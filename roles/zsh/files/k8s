@@ -5,10 +5,11 @@ if [[ $k8s_debug == "ON" ]]; then
 fi
 
 if [[ $k8s_session_aware == "ON" ]]; then
-  k9s --context $k8s_context -n $k8s_namespace
+  k9s --context "$k8s_context" -n "$k8s_namespace"
 else
   k9s
 fi
+ret=$?
 
 if [[ $k8s_debug == "ON" ]]; then
   set +x

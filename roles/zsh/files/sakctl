@@ -1,22 +1,136 @@
 #!/usr/bin/env zsh
 
-kctl_sa() {
-    plugin=$1
-    shift
+kctl_has_context_flag() {
+  local arg
 
-    location=("--context" $k8s_context)
-
-    case $plugin in
-      drain-annotate) ;;
-      uncordon-annotate) ;;
-      cordon-annotate) ;;
-      *)
-        if [[ "$k8s_namespace" != "" ]]; then
-          location+=("--namespace" $k8s_namespace)
-        fi
+  for arg in "$@"; do
+    case "$arg" in
+      --context|--context=*)
+        return 0
+        ;;
     esac
+  done
 
-    kubectl $plugin $location $@
+  return 1
+}
+
+kctl_has_namespace_flag() {
+  local arg
+
+  for arg in "$@"; do
+    case "$arg" in
+      -n|--namespace|--namespace=*|-A|--all-namespaces)
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+kctl_first_command() {
+  local arg skip_next
+
+  skip_next=0
+  for arg in "$@"; do
+    if [[ $skip_next -eq 1 ]]; then
+      skip_next=0
+      continue
+    fi
+
+    case "$arg" in
+      --context|--namespace|--kubeconfig|--as|--as-group|--cluster|--user|--request-timeout|--server|--token)
+        skip_next=1
+        ;;
+      --*)
+        ;;
+      -*)
+        ;;
+      *)
+        echo "$arg"
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+kctl_second_command() {
+  local arg command seen_command skip_next
+
+  command="$1"
+  shift
+
+  seen_command=0
+  skip_next=0
+  for arg in "$@"; do
+    if [[ $skip_next -eq 1 ]]; then
+      skip_next=0
+      continue
+    fi
+
+    case "$arg" in
+      --context|--namespace|--kubeconfig|--as|--as-group|--cluster|--user|--request-timeout|--server|--token)
+        skip_next=1
+        ;;
+      --*)
+        ;;
+      -*)
+        ;;
+      *)
+        if [[ $seen_command -eq 0 && "$arg" == "$command" ]]; then
+          seen_command=1
+          continue
+        fi
+
+        if [[ $seen_command -eq 1 ]]; then
+          echo "$arg"
+          return 0
+        fi
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+kctl_should_inject_namespace() {
+  local command resource
+
+  kctl_has_namespace_flag "$@" && return 1
+
+  command=$(kctl_first_command "$@")
+  case "$command" in
+    config|api-resources|api-versions|cluster-info|version|proxy|completion|options|cordon|uncordon|drain|drain-annotate|uncordon-annotate|cordon-annotate)
+      return 1
+      ;;
+  esac
+
+  resource=$(kctl_second_command "$command" "$@")
+  case "$resource" in
+    ns|namespace|namespaces|no|node|nodes|pv|persistentvolume|persistentvolumes|clusterrole|clusterroles|clusterrolebinding|clusterrolebindings|crd|customresourcedefinition|customresourcedefinitions)
+      return 1
+      ;;
+  esac
+
+  [[ "$k8s_namespace" != "" ]]
+}
+
+kctl_sa() {
+    local location
+
+    location=()
+
+    if ! kctl_has_context_flag "$@" && [[ "$k8s_context" != "" ]]; then
+      location+=("--context" "$k8s_context")
+    fi
+
+    if kctl_should_inject_namespace "$@"; then
+      location+=("--namespace" "$k8s_namespace")
+    fi
+
+    kubectl "${location[@]}" "$@"
 }
 
 if [[ $k8s_debug == "ON" ]]; then
@@ -24,11 +138,11 @@ if [[ $k8s_debug == "ON" ]]; then
 fi
 
 if [[ $k8s_session_aware != "ON" ]]; then
-  kubectl $@
+  kubectl "$@"
   exit $?
 fi
 
-kctl_sa $@
+kctl_sa "$@"
 ret=$?
 
 if [[ $k8s_debug == "ON" ]]; then
@@ -36,4 +150,3 @@ if [[ $k8s_debug == "ON" ]]; then
 fi
 
 exit $ret
-
