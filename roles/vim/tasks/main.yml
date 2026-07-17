@@ -33,5 +33,11 @@
     - lua/plugins/tagbar
     - lua/plugins/telescope
     # - lua/plugins/vim-gurl
+
+- name: copy lazy lockfile
+  copy:
+    src: lazy-lock.json
+    dest: "{{ansible_user_dir}}/.config/nvim/lazy-lock.json"
+    mode: 0644
 ...
 # vim: ts=1 sts=2 sw=2

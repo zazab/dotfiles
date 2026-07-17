@@ -5,7 +5,8 @@ alias gd="git diff"
 alias gcl="git clone"
 alias ga="git add"
 alias gi="git add -pi"
-alias gl="git log --oneline --graph --decorate"
+#alias gl="git log --oneline --graph --decorate"
+alias gl='git log --graph --decorate --format="%C(auto)%h%Creset %C(auto)%d%Creset %s %C(dim white)- %an, %ar%Creset"'
 
 #unalias glb
 function glb {

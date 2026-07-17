@@ -37,8 +37,7 @@ fi
 export GOPATH="{{codehome}}/goroot"
 export GOSRC="{{codehome}}/goroot/src"
 export CODEHOME={{codehome}}
-export CMDB_TOKEN_FILE="$HOME/.cmdb.token"
-export KUBECTL_PLUGINS_GRAFANA_TOKEN="$(cat $HOME/.grafana.token)"
+export PERSISTENT_TMP="$HOME/code/tmp"
 
 #
 # Paths
@@ -47,7 +46,12 @@ export KUBECTL_PLUGINS_GRAFANA_TOKEN="$(cat $HOME/.grafana.token)"
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
-fpath=(${HOME}/.zsh/completions.d $fpath)
+fpath=(
+  ${HOME}/.zsh/completions.d
+  ${HOME}/.zsh/generated_completions.d
+  {{ packages_bin }}/../share/zsh/site-functions
+  $fpath
+)
 
 # Set the list of directories that Zsh searches for programs.
 path=(

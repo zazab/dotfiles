@@ -56,8 +56,10 @@
     - alias.d/aliases
     - alias.d/ansible
     - alias.d/avito-tool
+    - alias.d/codex
     - alias.d/docker
     - alias.d/fzfcd
+    - alias.d/fzfk8s
     - alias.d/git
     - alias.d/global
     - alias.d/grep
@@ -66,6 +68,7 @@
     - alias.d/ssh
     - profile.d/fzf
     - profile.d/keybindings
+    - profile.d/tokens
     - profile.d/zsh_autosuggestions
     - zshrc.d/alias_expand
     - zshrc.d/completion_generator
@@ -74,7 +77,19 @@
     - zshrc.d/rvm
     - zshrc.d/gvm
     - custom.d/_
+    - custom.d/mktmp
     - generated_completions.d/_
+
+- name: remove obsolete sakctl shell integration
+  file:
+    path: "{{ansible_user_dir}}/.zsh/alias.d/new_sa_k8s.zsh"
+    state: absent
+
+- name: create bin directory
+  file:
+    path: "{{ansible_user_dir}}/bin"
+    state: directory
+    mode: 0750
 
 - name: copy k8s helpers
   copy:
@@ -86,7 +101,13 @@
     - describe_cluster
     - describe_ns
     - k8s
-    - sakctl
+
+- name: install sakctl
+  command:
+    cmd: go install ./cmd/sakctl
+    chdir: "{{codehome}}/sakctl"
+  environment:
+    GOBIN: "{{ansible_user_dir}}/bin"
 - name: templated .d items
   template:
     src: "{{item}}.j2"

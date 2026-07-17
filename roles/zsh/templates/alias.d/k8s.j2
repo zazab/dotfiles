@@ -88,6 +88,7 @@ capi_alias () {
     echo 'alias -g CL-control-plane="cluster.x-k8s.io/control-plane"'
 }
 
+
 ## single machines
 alias kgm="$kctl_binary get machine"
 alias kgpm="$kctl_binary get platformmachine"
@@ -150,3 +151,16 @@ alias -g L-cluster-metadata="-l app=cluster-metadata"
 alias -g L-kube-state-metrics="-l app.kubernetes.io/name=kube-state-metrics"
 alias -g L-ksm="-l app.kubernetes.io/name=kube-state-metrics"
 alias -g L-metrics-server="-l app.kubernetes.io/name=metrics-server"
+
+# Cluster API aliases
+capi_get_cluster_master_machines () {
+    cluster="$1"
+
+    $kctl_binary get machine -l "cluster.x-k8s.io/control-plane,cluster.x-k8s.io/cluster-name=$cluster"
+}
+
+capi_get_multiple_cluster_master_machines () {
+    clusters="${(j:, :)@}"
+    
+    $kctl_binary get machine -l "cluster.x-k8s.io/control-plane,cluster.x-k8s.io/cluster-name in ($clusters)"
+}
