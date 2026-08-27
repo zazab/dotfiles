@@ -1,24 +1,33 @@
 ---
-- name: setup tmux.conf
-  copy:
+- name: Set up tmux configuration
+  ansible.builtin.copy:
     src: tmux.conf
-    dest: "{{ansible_user_dir}}/.tmux.conf"
+    dest: "{{ ansible_facts['user_dir'] }}/.tmux.conf"
+    mode: '0644'
+  notify: Install tmux plugins
 
-- name: prepare plugins dir
-  file:
-    path: "{{ansible_user_dir}}/{{item}}"
+- name: Create tmux plugin directories
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/{{ item }}"
     state: directory
-  with_items:
+    mode: '0755'
+  loop:
     - .tmux
     - .tmux/plugins
+    - .tmux/scripts
 
-- name: pull tpm
+- name: Install tmux status scripts
+  ansible.builtin.copy:
+    src: vpn-status
+    dest: "{{ ansible_facts['user_dir'] }}/.tmux/scripts/vpn-status"
+    mode: '0755'
+
+- name: Install pinned TPM
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
-    dest: "{{ansible_user_dir}}/.tmux/plugins/tpm"
-
-- name: install plugins
-  ansible.builtin.shell: "{{ansible_user_dir}}/.tmux/plugins/tpm/bindings/install_plugins"
+    dest: "{{ ansible_facts['user_dir'] }}/.tmux/plugins/tpm"
+    version: e261deb1b47614eed3400089ce7197dc68acc4eb
+  notify: Install tmux plugins
 
 ...
 # vim: ts=2 sts=2 sw=2
