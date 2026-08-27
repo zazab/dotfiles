@@ -60,3 +60,9 @@ function scd fzfcd_service {
 zle -N fzfcd_service
 bindkey "\es" fzfcd_service
 bindkey -M "viopp" "\es" fzfcd_service
+
+function hcd fzfcd_home_projects {
+    fzfcd . $CODEHOME/home-projects 1
+}
+zle -N fzfcd_home_projects
+bindkey "\eh" fzfcd_home_projects
