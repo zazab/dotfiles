@@ -22,12 +22,40 @@
     dest: "{{ ansible_facts['user_dir'] }}/.tmux/scripts/vpn-status"
     mode: '0755'
 
-- name: Install pinned TPM
+- name: Install tmux pane title toggle script
+  ansible.builtin.copy:
+    src: toggle-pane-titles
+    dest: "{{ ansible_facts['user_dir'] }}/.tmux/scripts/toggle-pane-titles"
+    mode: '0755'
+
+- name: Install TPM
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
     dest: "{{ ansible_facts['user_dir'] }}/.tmux/plugins/tpm"
-    version: e261deb1b47614eed3400089ce7197dc68acc4eb
   notify: Install tmux plugins
+
+- name: Install tmux-popup-control source
+  ansible.builtin.git:
+    repo: https://github.com/atomicstack/tmux-popup-control
+    dest: "{{ ansible_facts['user_dir'] }}/.local/share/tmux-popup-control"
+  register: tmux_popup_control_checkout
+
+- name: Vendor tmux-popup-control Go dependencies
+  ansible.builtin.command:
+    cmd: go mod vendor
+    chdir: "{{ ansible_facts['user_dir'] }}/.local/share/tmux-popup-control"
+  when: tmux_popup_control_checkout.changed
+
+- name: Build tmux-popup-control
+  ansible.builtin.command:
+    cmd: make build
+    chdir: "{{ ansible_facts['user_dir'] }}/.local/share/tmux-popup-control"
+  when: tmux_popup_control_checkout.changed
+
+- name: Prune unmanaged tmux plugins
+  ansible.builtin.command:
+    cmd: "{{ ansible_facts['user_dir'] }}/.tmux/plugins/tpm/bin/clean_plugins"
+  changed_when: false
 
 ...
 # vim: ts=2 sts=2 sw=2

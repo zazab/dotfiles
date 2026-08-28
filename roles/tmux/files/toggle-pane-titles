@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# GUI-launched tmux servers inherit a minimal macOS PATH. Ensure Homebrew's
+# tmux binary remains available when this helper is started via run-shell.
+PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+export PATH
+
+if [ "$(tmux show-window-options -v pane-border-status)" = "top" ]; then
+  tmux set-window-option pane-border-status off
+  tmux display-message "Pane titles hidden"
+else
+  tmux set-window-option pane-border-status top
+  tmux display-message "Pane titles shown"
+fi

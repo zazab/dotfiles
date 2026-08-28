@@ -1,9 +1,6 @@
 font-family = "FiraMono Nerd Font Propo"
 theme = Dracula
-# Ghostty launched from the Dock does not inherit the login-shell PATH.
-# Start tmux through login zsh so tmux and its plugins receive the normal
-# user environment (including Homebrew) without a duplicate PATH declaration.
-command = direct:/bin/zsh -lc "exec {{ terminal_multiplexer_program }}"
+command = direct:{{ terminal_multiplexer_program }}
 
 background-opacity = 0.95
 unfocused-split-opacity = 0.5
