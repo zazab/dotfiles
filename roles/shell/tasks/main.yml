@@ -1,0 +1,48 @@
+---
+- name: Validate terminal multiplexer selection
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] in terminal_multiplexer_programs
+      - terminal_multiplexer in terminal_multiplexer_programs[ansible_facts['os_family']]
+    fail_msg: >-
+      terminal_multiplexer must be one of
+      {{ terminal_multiplexer_programs[ansible_facts['os_family']] | join(', ') }}
+      on {{ ansible_facts['os_family'] }}.
+
+- name: Select terminal multiplexer program
+  ansible.builtin.set_fact:
+    terminal_multiplexer_program: >-
+      {{ terminal_multiplexer_programs[ansible_facts['os_family']][terminal_multiplexer] }}
+
+- name: Create Alacritty configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/alacritty"
+    state: directory
+    mode: '0755'
+
+- name: Deploy Alacritty configuration
+  ansible.builtin.template:
+    src: alacritty.toml.j2
+    dest: "{{ ansible_facts['user_dir'] }}/.config/alacritty/alacritty.toml"
+    mode: '0644'
+
+- name: Create Ghostty configuration directory on macOS
+  ansible.builtin.file:
+    path: "{{ ghostty_config_dir }}"
+    state: directory
+    mode: '0755'
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Deploy Ghostty configuration on macOS
+  ansible.builtin.template:
+    src: ghostty-config.j2
+    dest: "{{ ghostty_config_dir }}/config"
+    mode: '0644'
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Deploy Ghostty keybindings on macOS
+  ansible.builtin.template:
+    src: ghostty-keybindings.j2
+    dest: "{{ ghostty_config_dir }}/keybindings"
+    mode: '0644'
+  when: ansible_facts['os_family'] == 'Darwin'

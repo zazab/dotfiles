@@ -1,9 +1,6 @@
 
 [terminal.shell]
-program = "/opt/homebrew/bin/tmux"
-#program = "/Users/evpersienko/bin/alatmux.sh"
-#program = "/Users/evpersienko/bin/alatmux.sh"
-#args = ["new-session", "-A", "-s", "alacritty"]
+program = "{{ terminal_multiplexer_program }}"
 
 
 [window]
@@ -32,7 +29,8 @@ vi_mode_style = { shape = "Underline", blinking = "On" }
 
 [keyboard]
 bindings = [
-    #{ key = "C", mods = "Command | Shift", action = "ToggleViMode" },
+    { key = "V", mods = "Control", action = "Paste" },
+    { key = "м", mods = "Control", action = "Paste" },
     { key = "Escape", mode = "Vi", action = "ToggleViMode" },
 ]
 
