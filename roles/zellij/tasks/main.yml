@@ -1,0 +1,74 @@
+---
+- name: Validate supported Debian architecture
+  ansible.builtin.assert:
+    that: ansible_facts['architecture'] in zellij_linux_releases
+    fail_msg: "Zellij has no configured release artifact for {{ ansible_facts['architecture'] }}."
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Zellij on macOS
+  community.general.homebrew:
+    name: zellij
+    state: present
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Create local binary directory on Debian
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin"
+    state: directory
+    mode: '0755'
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Download pinned Zellij release on Debian
+  ansible.builtin.get_url:
+    url: "https://github.com/zellij-org/zellij/releases/download/v{{ zellij_version }}/zellij-{{ zellij_linux_releases[ansible_facts['architecture']].target }}.tar.gz"
+    dest: "/tmp/zellij-{{ zellij_version }}-{{ zellij_linux_releases[ansible_facts['architecture']].target }}.tar.gz"
+    checksum: "{{ zellij_linux_releases[ansible_facts['architecture']].checksum }}"
+    mode: '0644'
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Zellij binary on Debian
+  ansible.builtin.unarchive:
+    src: "/tmp/zellij-{{ zellij_version }}-{{ zellij_linux_releases[ansible_facts['architecture']].target }}.tar.gz"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin"
+    include: zellij
+    mode: '0755'
+    remote_src: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Create Zellij configuration directories
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/zellij/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - ''
+    - layouts
+    - plugins
+    - scripts
+
+- name: Download pinned Zellij plugins
+  ansible.builtin.get_url:
+    url: "https://github.com/dj95/zjstatus/releases/download/v{{ zellij_plugin_version }}/{{ item }}.wasm"
+    dest: "{{ zellij_plugin_dir }}/{{ item }}.wasm"
+    checksum: "{{ zellij_plugins[item].checksum }}"
+    mode: '0644'
+  loop:
+    - zjstatus
+
+- name: Deploy Zellij configuration
+  ansible.builtin.template:
+    src: config.kdl.j2
+    dest: "{{ ansible_facts['user_dir'] }}/.config/zellij/config.kdl"
+    mode: '0644'
+
+- name: Deploy Zellij default layout
+  ansible.builtin.template:
+    src: default.kdl.j2
+    dest: "{{ ansible_facts['user_dir'] }}/.config/zellij/layouts/default.kdl"
+    mode: '0644'
+
+- name: Deploy Zellij VPN status script
+  ansible.builtin.copy:
+    src: vpn-status
+    dest: "{{ ansible_facts['user_dir'] }}/.config/zellij/scripts/vpn-status"
+    mode: '0755'

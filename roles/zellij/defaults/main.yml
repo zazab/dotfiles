@@ -1,0 +1,14 @@
+---
+zellij_version: 0.45.0
+zellij_plugin_version: 0.24.0
+zellij_plugin_dir: "{{ ansible_facts['user_dir'] }}/.config/zellij/plugins"
+zellij_linux_releases:
+  x86_64:
+    target: x86_64-unknown-linux-musl
+    checksum: sha256:ab8b2494d80c20c07da4361041a25b96b93c73df992d2d54143e70fb9b1a1063
+  aarch64:
+    target: aarch64-unknown-linux-musl
+    checksum: sha256:d8b311d0f9ec7a03f3341563331aac12c9f52990ecc96a36ed44b1add9dfa035
+zellij_plugins:
+  zjstatus:
+    checksum: sha256:1ccedece1ded62cf3e209be690cdd39ca6fb9e8228ed71a951f6507f9956669b

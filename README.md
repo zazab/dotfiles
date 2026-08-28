@@ -2,6 +2,18 @@
 
 ## vim
 
+## zellij
+
+Устанавливает Zellij и разворачивает конфигурацию с tmux-совместимыми
+клавишами, темой Tokio Night и строкой состояния `zjstatus`.
+
+tmux и Zellij могут быть установлены одновременно. По умолчанию Alacritty
+запускает tmux; для запуска Zellij выберите его при применении shell-роли:
+
+```shell
+ansible-playbook -c local -i localhost, strap_configs.yaml -t zellij,shell -e terminal_multiplexer=zellij
+```
+
 ## zsh
 Настраивает zsh через zgen, и добавляет функционал расширяемого конфига.
 
@@ -32,4 +44,4 @@ kcfork
 Так же есть следующие команды (в скобках алиасы):
 - `kube_config_reset(kcreset)` удаление сессионного конфига, и переключение на стандартный,
 - `kube_config_refresh(kcrefresh)` обновление сессионного конфига из стандартного,
-- `kube_config_persist(kcpersist)` сохранение текущего сессионного конфига в стандартный, 
+- `kube_config_persist(kcpersist)` сохранение текущего сессионного конфига в стандартный,

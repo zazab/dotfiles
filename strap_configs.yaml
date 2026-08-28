@@ -22,5 +22,11 @@
     - role: tmux
       tags:
         - tmux
+    - role: zellij
+      tags:
+        - zellij
+    - role: shell
+      tags:
+        - shell
 ...
 # vim: ts=2 sts=1 sw=2
