@@ -65,4 +65,4 @@ function hcd fzfcd_home_projects {
     fzfcd . $CODEHOME/home-projects 1
 }
 zle -N fzfcd_home_projects
-bindkey "\eh" fzfcd_home_projects
+bindkey "\ea" fzfcd_home_projects
