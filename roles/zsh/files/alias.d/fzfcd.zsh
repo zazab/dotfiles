@@ -48,14 +48,14 @@ fzfcd() {
 }
 
 function ccd fzfcd_code {
-    fzfcd . $CODEHOME 1 $GOPATH/src 3
+    fzfcd . $CODEHOME 1
 }
 zle -N fzfcd_code
 bindkey "\ed" fzfcd_code
 bindkey -M "viopp" "\ed" fzfcd_code
 
 function scd fzfcd_service {
-    fzfcd 'service-*' $CODEHOME 1 $GOPATH/src/go.avito.ru 2
+    fzfcd 'service-*' $CODEHOME 1
 }
 zle -N fzfcd_service
 bindkey "\es" fzfcd_service

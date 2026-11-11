@@ -34,10 +34,9 @@ fi
 # CODE
 #
 
-export GOPATH="{{codehome}}/goroot"
-export GOSRC="{{codehome}}/goroot/src"
 export CODEHOME={{codehome}}
 export PERSISTENT_TMP="$HOME/code/tmp"
+unset GOPATH GOSRC
 
 #
 # Paths
@@ -56,7 +55,7 @@ fpath=(
 # Set the list of directories that Zsh searches for programs.
 path=(
   $HOME/bin
-  $GOPATH/bin
+  $HOME/go/bin
   $HOME/Library/Python/3.7/bin
   $HOME/.krew/bin
   $HOME/.kube/plugins/bin
@@ -64,7 +63,7 @@ path=(
   $HOME/.local/bin
   $HOME/.cargo/bin
   {{ packages_bin }}
-  $path
+  ${path:#$CODEHOME/goroot/bin}
 )
 
 # Set the default Less options.
